@@ -5,6 +5,7 @@ using UnityEngine;
 using Noomyung.Authentication.Domain;
 using PlayFab;
 using PlayFab.ClientModels;
+using Cysharp.Threading.Tasks;
 
 namespace Noomyung.Authentication.Infrastructure
 {
@@ -41,7 +42,7 @@ namespace Noomyung.Authentication.Infrastructure
                 tcs.TrySetException(new Exception(e.ErrorMessage));
             });
 
-            var result = await tcs.Task.ConfigureAwait(false);
+            var result = await tcs.Task.AsUniTask();
 
             var session = new PlayFabAuthSession(result.PlayFabId, true);
 
@@ -90,7 +91,7 @@ namespace Noomyung.Authentication.Infrastructure
                 throw;
             }
 
-            var result = await tcs.Task.ConfigureAwait(false);
+            var result = await tcs.Task.AsUniTask();
 
             var session = new PlayFabAuthSession(result.PlayFabId, true);
 
@@ -119,7 +120,7 @@ namespace Noomyung.Authentication.Infrastructure
                 throw;
             }
 
-            var result = await tcs.Task.ConfigureAwait(false);
+            var result = await tcs.Task.AsUniTask();
             var session = new PlayFabAuthSession(result.PlayFabId, true);
 
             return session;
@@ -148,7 +149,11 @@ namespace Noomyung.Authentication.Infrastructure
                 throw;
             }
 
-            await tcs.Task.ConfigureAwait(false);
+            var result = await tcs.Task.AsUniTask();
+            
+            // Register 성공 후 자동으로 로그인을 수행합니다.
+            // 이렇게 하면 Register 후 즉시 로그인된 상태가 됩니다.
+            Debug.Log($"User registered successfully with username: {username}. Auto-login will be performed.");
         }
 
         public Task LinkProviderAsync(AuthProvider provider, string accessToken, CancellationToken cancellationToken = default)
@@ -168,10 +173,69 @@ namespace Noomyung.Authentication.Infrastructure
             return Task.FromResult(PlayFabSettings.staticPlayer.PlayFabId);
         }
 
-        public Task SignOutAsync(CancellationToken cancellationToken = default)
+        public async Task SignOutAsync(CancellationToken cancellationToken = default)
         {
-            PlayFabClientAPI.ForgetAllCredentials();
-            return Task.CompletedTask;
+            try
+            {
+                // PlayFab에서 로그인 상태 확인
+                if (PlayFabSettings.staticPlayer != null && !string.IsNullOrEmpty(PlayFabSettings.staticPlayer.PlayFabId))
+                {
+                    PlayFabClientAPI.ForgetAllCredentials();
+                    
+                    // 로그아웃 상태를 지속적으로 확인
+                    await WaitForSignOutCompletion(cancellationToken);
+                    
+                    Debug.Log("PlayFab Sign out completed successfully");
+                }
+                else
+                {
+                    Debug.Log("User is not signed in, no need to sign out");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"PlayFab Sign out failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 로그아웃이 완료될 때까지 상태를 지속적으로 확인합니다.
+        /// </summary>
+        private async UniTask WaitForSignOutCompletion(CancellationToken cancellationToken)
+        {
+            const int maxWaitTime = 5000; // 최대 5초 대기
+            const int checkInterval = 50; // 50ms마다 확인
+            int elapsedTime = 0;
+
+            while (IsPlayFabSignedIn() && elapsedTime < maxWaitTime)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                await UniTask.Delay(checkInterval, cancellationToken: cancellationToken);
+                elapsedTime += checkInterval;
+            }
+
+            if (IsPlayFabSignedIn())
+            {
+                Debug.LogWarning("PlayFab Sign out timeout - user may still be signed in");
+            }
+        }
+
+        public async Task<bool> IsSignedInAsync(CancellationToken cancellationToken = default)
+        {
+            return IsPlayFabSignedIn();
+        }
+
+        /// <summary>
+        /// PlayFab 로그인 상태를 확인합니다.
+        /// </summary>
+        private bool IsPlayFabSignedIn()
+        {
+            return PlayFabSettings.staticPlayer != null && !string.IsNullOrEmpty(PlayFabSettings.staticPlayer.PlayFabId);
         }
 
         public void Dispose()

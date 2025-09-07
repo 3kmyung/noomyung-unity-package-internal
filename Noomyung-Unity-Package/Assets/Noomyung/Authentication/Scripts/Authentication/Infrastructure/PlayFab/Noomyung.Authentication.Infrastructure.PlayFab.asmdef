@@ -4,7 +4,8 @@
   "references": [
     "Noomyung.Authentication.Domain",
     "Noomyung.Authentication.Application",
-    "PlayFabSDK"
+    "PlayFabSDK",
+    "UniTask"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
