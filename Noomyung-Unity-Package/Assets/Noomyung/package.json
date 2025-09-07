@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "displayName": "Noomyung Game Stack",
     "description": "Authentication, Cloud Save, IAP, UI, and Scene Management utilities for Unity projects.",
-    "unity": "6000.2.1",
+    "unity": "6000.2",
     "author": {
         "name": "3kmyung",
         "url": "https://github.com/3kmyung"
