@@ -142,12 +142,12 @@ namespace Noomyung.Authentication.Infrastructure
 
             try
             {
-                // UGS는 직접적인 Username/Password 등록을 지원하지 않으므로
-                // 서버를 통해 사용자 등록을 처리해야 합니다.
-                Debug.LogWarning("UGS does not support direct Username/Password registration. Server-side registration required.");
+                // UGS에서 Username/Password 등록을 수행합니다.
+                // 이는 실제로는 서버에 사용자를 등록하는 것이 아니라
+                // UGS의 Username/Password 인증 시스템에 사용자를 등록하는 것입니다.
+                await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
                 
-                // 실제 구현에서는 서버 API를 호출하여 사용자를 등록해야 합니다.
-                await RegisterUserOnServerAsync(username, password);
+                Debug.Log($"User registered successfully with username: {username}");
             }
             catch (Exception ex)
             {
@@ -262,20 +262,5 @@ namespace Noomyung.Authentication.Infrastructure
         {
         }
 
-        /// <summary>
-        /// 서버에 사용자를 등록하는 메서드 (예시 구현)
-        /// 실제 구현에서는 서버 API를 호출해야 합니다.
-        /// </summary>
-        private async Task RegisterUserOnServerAsync(string username, string password)
-        {
-            // 실제 구현에서는 서버에 사용자 등록 요청을 보내야 합니다.
-            await Task.Delay(100); // 서버 호출 시뮬레이션
-            
-            // 실제 구현 예시:
-            // var response = await httpClient.PostAsync("/auth/register", 
-            //     new StringContent(JsonConvert.SerializeObject(new { username, password })));
-            // if (!response.IsSuccessStatusCode)
-            //     throw new Exception("User registration failed");
-        }
     }
 }

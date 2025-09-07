@@ -110,8 +110,20 @@ namespace Noomyung.Develop.Authentication
                 _cancellationTokenSource = new CancellationTokenSource();
                 await _authUseCases.RegisterWithUsernamePasswordAsync(username, password, _cancellationTokenSource.Token);
 
-                UpdateStatusText($"회원가입 성공: {username}");
-                Debug.Log($"회원가입 성공: {username}");
+                // 회원가입 성공 후 Player ID를 가져와서 UI에 표시
+                try
+                {
+                    var playerId = await _authUseCases.GetPlayerIdAsync(_cancellationTokenSource.Token);
+                    UpdateStatusText($"회원가입 성공: {username}");
+                    UpdatePlayerIdText($"Player ID: {playerId}");
+                    Debug.Log($"회원가입 성공: {username}, Player ID: {playerId}");
+                }
+                catch (Exception ex)
+                {
+                    UpdateStatusText($"회원가입 성공: {username} (Player ID 가져오기 실패: {ex.Message})");
+                    UpdatePlayerIdText("Player ID: 알 수 없음");
+                    Debug.LogWarning($"회원가입 성공했지만 Player ID 가져오기 실패: {ex.Message}");
+                }
             }
             catch (OperationCanceledException)
             {
@@ -146,6 +158,13 @@ namespace Noomyung.Develop.Authentication
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 UpdateStatusText("사용자명과 비밀번호를 입력해주세요.");
+                return;
+            }
+
+            // 이미 로그인되어 있는지 확인
+            if (await IsAlreadySignedInAsync())
+            {
+                UpdateStatusText("이미 로그인되어 있습니다. 로그아웃 후 다시 시도해주세요.");
                 return;
             }
 
@@ -185,6 +204,13 @@ namespace Noomyung.Develop.Authentication
             if (_authUseCases == null)
             {
                 UpdateStatusText("인증 서비스가 초기화되지 않았습니다.");
+                return;
+            }
+
+            // 이미 로그인되어 있는지 확인
+            if (await IsAlreadySignedInAsync())
+            {
+                UpdateStatusText("이미 로그인되어 있습니다. 로그아웃 후 다시 시도해주세요.");
                 return;
             }
 
@@ -319,6 +345,24 @@ namespace Noomyung.Develop.Authentication
             {
                 UpdateStatusText($"Player ID 가져오기 실패: {ex.Message}");
                 Debug.LogError($"Player ID 가져오기 실패: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 이미 로그인되어 있는지 확인합니다.
+        /// </summary>
+        /// <returns>로그인되어 있으면 true, 그렇지 않으면 false</returns>
+        private async Task<bool> IsAlreadySignedInAsync()
+        {
+            try
+            {
+                var playerId = await _authUseCases.GetPlayerIdAsync();
+                return !string.IsNullOrEmpty(playerId);
+            }
+            catch
+            {
+                // Player ID를 가져올 수 없으면 로그인되지 않은 것으로 간주
+                return false;
             }
         }
 

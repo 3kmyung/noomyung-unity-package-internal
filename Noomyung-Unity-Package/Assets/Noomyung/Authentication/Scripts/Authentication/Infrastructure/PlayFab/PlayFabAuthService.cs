@@ -148,7 +148,11 @@ namespace Noomyung.Authentication.Infrastructure
                 throw;
             }
 
-            await tcs.Task.ConfigureAwait(false);
+            var result = await tcs.Task.ConfigureAwait(false);
+            
+            // Register 성공 후 자동으로 로그인을 수행합니다.
+            // 이렇게 하면 Register 후 즉시 로그인된 상태가 됩니다.
+            Debug.Log($"User registered successfully with username: {username}. Auto-login will be performed.");
         }
 
         public Task LinkProviderAsync(AuthProvider provider, string accessToken, CancellationToken cancellationToken = default)

@@ -679,11 +679,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 2a1fa715-bd35-4551-bf5e-bb971436e1d9
+  cloudProjectId: 77bdcc26-281e-4a90-861d-34dccf45f7dd
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: Noomyung-Unity-Package
-  organizationId: ikmyung_unity
+  organizationId: unity_8414d3594dc5e4104582
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
