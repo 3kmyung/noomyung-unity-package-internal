@@ -55,6 +55,11 @@ namespace Noomyung.Authentication.Application
             return _authService.GetPlayerIdAsync(cancellationToken);
         }
 
+        public Task<bool> IsSignedInAsync(CancellationToken cancellationToken = default)
+        {
+            return _authService.IsSignedInAsync(cancellationToken);
+        }
+
         public Task SignOutAsync(CancellationToken cancellationToken = default)
         {
             return _authService.SignOutAsync(cancellationToken);

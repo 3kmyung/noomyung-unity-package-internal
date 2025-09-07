@@ -40,6 +40,8 @@ namespace Noomyung.Authentication.Domain
 
         Task<string> GetPlayerIdAsync(CancellationToken cancellationToken = default);
 
+        Task<bool> IsSignedInAsync(CancellationToken cancellationToken = default);
+
         Task SignOutAsync(CancellationToken cancellationToken = default);
     }
 }

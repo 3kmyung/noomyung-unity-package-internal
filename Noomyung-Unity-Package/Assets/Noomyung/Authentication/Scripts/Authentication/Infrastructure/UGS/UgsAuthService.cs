@@ -5,6 +5,7 @@ using UnityEngine;
 using Noomyung.Authentication.Domain;
 using Unity.Services.Core;
 using Unity.Services.Authentication;
+using Cysharp.Threading.Tasks;
 
 namespace Noomyung.Authentication.Infrastructure
 {
@@ -34,7 +35,7 @@ namespace Noomyung.Authentication.Infrastructure
 
             if (!AuthenticationService.Instance.IsSignedIn)
             {
-                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
 
                 if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
             }
@@ -56,7 +57,7 @@ namespace Noomyung.Authentication.Infrastructure
                 
                 if (!AuthenticationService.Instance.IsSignedIn)
                 {
-                    await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                    await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
                 }
 
                 if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
@@ -81,22 +82,22 @@ namespace Noomyung.Authentication.Infrastructure
                 switch (provider)
                 {
                     case AuthProvider.Google:
-                        await AuthenticationService.Instance.SignInWithGoogleAsync(accessToken);
+                        await AuthenticationService.Instance.SignInWithGoogleAsync(accessToken).AsUniTask();
                         break;
                     case AuthProvider.Apple:
-                        await AuthenticationService.Instance.SignInWithAppleAsync(accessToken);
+                        await AuthenticationService.Instance.SignInWithAppleAsync(accessToken).AsUniTask();
                         break;
                     case AuthProvider.Facebook:
-                        await AuthenticationService.Instance.SignInWithFacebookAsync(accessToken);
+                        await AuthenticationService.Instance.SignInWithFacebookAsync(accessToken).AsUniTask();
                         break;
                     case AuthProvider.Custom:
                         // UGS에서 Custom Token 로그인을 직접 지원하지 않으므로
                         // 익명 로그인을 사용하고 Custom Token을 별도로 저장합니다.
                         Debug.LogWarning("UGS does not support direct Custom Token authentication. Using anonymous login with token storage.");
-                        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                        await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
                         break;
                     default:
-                        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                        await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
                         break;
                 }
             }
@@ -121,7 +122,7 @@ namespace Noomyung.Authentication.Infrastructure
             try
             {
                 // UGS에서 지원하는 Username/Password 로그인을 사용합니다.
-                await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(username, password);
+                await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(username, password).AsUniTask();
             }
             catch (Exception ex)
             {
@@ -145,7 +146,7 @@ namespace Noomyung.Authentication.Infrastructure
                 // UGS에서 Username/Password 등록을 수행합니다.
                 // 이는 실제로는 서버에 사용자를 등록하는 것이 아니라
                 // UGS의 Username/Password 인증 시스템에 사용자를 등록하는 것입니다.
-                await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
+                await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password).AsUniTask();
                 
                 Debug.Log($"User registered successfully with username: {username}");
             }
@@ -165,13 +166,13 @@ namespace Noomyung.Authentication.Infrastructure
                 switch (provider)
                 {
                     case AuthProvider.Google:
-                        await AuthenticationService.Instance.LinkWithGoogleAsync(accessToken);
+                        await AuthenticationService.Instance.LinkWithGoogleAsync(accessToken).AsUniTask();
                         break;
                     case AuthProvider.Apple:
-                        await AuthenticationService.Instance.LinkWithAppleAsync(accessToken);
+                        await AuthenticationService.Instance.LinkWithAppleAsync(accessToken).AsUniTask();
                         break;
                     case AuthProvider.Facebook:
-                        await AuthenticationService.Instance.LinkWithFacebookAsync(accessToken);
+                        await AuthenticationService.Instance.LinkWithFacebookAsync(accessToken).AsUniTask();
                         break;
                     case AuthProvider.Custom:
                         // UGS에서 Custom Token 링크를 직접 지원하지 않으므로
@@ -198,13 +199,13 @@ namespace Noomyung.Authentication.Infrastructure
                 switch (provider)
                 {
                     case AuthProvider.Google:
-                        await AuthenticationService.Instance.UnlinkGoogleAsync();
+                        await AuthenticationService.Instance.UnlinkGoogleAsync().AsUniTask();
                         break;
                     case AuthProvider.Apple:
-                        await AuthenticationService.Instance.UnlinkAppleAsync();
+                        await AuthenticationService.Instance.UnlinkAppleAsync().AsUniTask();
                         break;
                     case AuthProvider.Facebook:
-                        await AuthenticationService.Instance.UnlinkFacebookAsync();
+                        await AuthenticationService.Instance.UnlinkFacebookAsync().AsUniTask();
                         break;
                     case AuthProvider.Custom:
                         // UGS에서 Custom Token 언링크를 직접 지원하지 않으므로
@@ -229,13 +230,97 @@ namespace Noomyung.Authentication.Infrastructure
             return AuthenticationService.Instance.PlayerId;
         }
 
+        public async Task<bool> IsSignedInAsync(CancellationToken cancellationToken = default)
+        {
+            await EnsureInitializedAsync(cancellationToken);
+
+            return AuthenticationService.Instance.IsSignedIn;
+        }
+
         public async Task SignOutAsync(CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
-            AuthenticationService.Instance.SignOut();
+            try
+            {
+                // IsSignedIn으로 실제 로그인 상태를 확인
+                bool isActuallySignedIn = AuthenticationService.Instance.IsSignedIn;
+                var currentPlayerId = AuthenticationService.Instance.PlayerId;
+                
+                Debug.Log($"UGS SignOut check - IsSignedIn: {isActuallySignedIn}, PlayerId: '{currentPlayerId}'");
+                
+                if (isActuallySignedIn)
+                {
+                    Debug.Log("Starting UGS sign out process...");
+                    AuthenticationService.Instance.SignOut();
+                    
+                    // 로그아웃 상태를 지속적으로 확인
+                    await WaitForSignOutCompletion(cancellationToken);
+                    
+                    Debug.Log("UGS Sign out completed successfully");
+                }
+                else
+                {
+                    Debug.Log("User is not signed in (IsSignedIn is false), no need to sign out");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"UGS Sign out failed: {ex.Message}");
+                throw;
+            }
+        }
 
-            await Task.Yield();
+        /// <summary>
+        /// 로그아웃이 완료될 때까지 상태를 지속적으로 확인합니다.
+        /// </summary>
+        private async UniTask WaitForSignOutCompletion(CancellationToken cancellationToken)
+        {
+            const int maxWaitTime = 5000; // 최대 5초 대기
+            const int checkInterval = 100; // 100ms마다 확인
+            int elapsedTime = 0;
+
+            while (elapsedTime < maxWaitTime)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
+                // IsSignedIn이 false가 되면 로그아웃 완료로 간주
+                bool isSignedIn = AuthenticationService.Instance.IsSignedIn;
+                var playerId = AuthenticationService.Instance.PlayerId;
+                
+                Debug.Log($"UGS Sign out check - IsSignedIn: {isSignedIn}, PlayerId: '{playerId}', Elapsed: {elapsedTime}ms");
+                
+                if (!isSignedIn)
+                {
+                    Debug.Log("UGS Sign out completed - IsSignedIn is false");
+                    return;
+                }
+
+                await UniTask.Delay(checkInterval, cancellationToken: cancellationToken);
+                elapsedTime += checkInterval;
+                
+                // 1초마다 진행 상황 로그
+                if (elapsedTime % 1000 == 0)
+                {
+                    Debug.Log($"UGS Sign out in progress... ({elapsedTime/1000}s elapsed)");
+                }
+            }
+
+            // 타임아웃 후 최종 확인
+            bool finalIsSignedIn = AuthenticationService.Instance.IsSignedIn;
+            var finalPlayerId = AuthenticationService.Instance.PlayerId;
+            
+            if (finalIsSignedIn)
+            {
+                Debug.LogWarning($"UGS Sign out timeout - IsSignedIn: {finalIsSignedIn}, PlayerId: '{finalPlayerId}'");
+            }
+            else
+            {
+                Debug.Log("UGS Sign out completed after timeout check");
+            }
         }
 
         private async Task EnsureInitializedAsync(CancellationToken cancellationToken)
@@ -244,7 +329,7 @@ namespace Noomyung.Authentication.Infrastructure
 
             try
             {
-                await UnityServices.InitializeAsync();
+                await UnityServices.InitializeAsync().AsUniTask();
 
                 _isInitialized = true;
             }

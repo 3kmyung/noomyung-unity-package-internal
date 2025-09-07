@@ -5,7 +5,8 @@
     "Noomyung.Authentication.Domain",
     "Noomyung.Authentication.Application",
     "Unity.Services.Authentication",
-    "Unity.Services.Core"
+    "Unity.Services.Core",
+    "UniTask"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
