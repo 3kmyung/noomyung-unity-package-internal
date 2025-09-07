@@ -1,0 +1,17 @@
+{
+  "name": "Noomyung.Authentication.Application",
+  "rootNamespace": "Noomyung.Authentication.Application",
+  "references": [
+    "GUID:00000000000000000000000000000000",
+    "Noomyung.Authentication.Domain"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

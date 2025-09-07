@@ -1,0 +1,20 @@
+{
+  "name": "Noomyung.IAP.Infrastructure.PlayFab",
+  "rootNamespace": "Noomyung.IAP.Infrastructure",
+  "references": [
+    "Noomyung.IAP.Domain",
+    "Noomyung.IAP.Application",
+    "PlayFabSDK"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "PLAYFAB_PACKAGE"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Noomyung.CloudSave.Infrastructure.Core",
+  "rootNamespace": "Noomyung.CloudSave.Infrastructure",
+  "references": [
+    "Noomyung.CloudSave.Domain",
+    "Noomyung.CloudSave.Application"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [
+    "com.unity.nuget.newtonsoft-json"
+  ],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

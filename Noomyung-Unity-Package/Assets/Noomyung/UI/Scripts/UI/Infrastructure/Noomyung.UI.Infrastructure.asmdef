@@ -1,0 +1,25 @@
+{
+    "name": "Noomyung.UI.Infrastructure",
+    "rootNamespace": "Noomyung.UI.Infrastructure",
+    "references": [
+        "Noomyung.UI.Domain",
+        "Noomyung.UI.Application",
+        "Unity.TextMeshPro",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "UNITASK_PRESENT"
+        }
+    ],
+    "noEngineReferences": false
+}

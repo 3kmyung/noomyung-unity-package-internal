@@ -1,0 +1,21 @@
+{
+  "name": "Noomyung.CloudSave.Infrastructure.PlayFab",
+  "rootNamespace": "Noomyung.CloudSave.Infrastructure",
+  "references": [
+    "Noomyung.CloudSave.Domain",
+    "Noomyung.CloudSave.Application",
+    "PlayFabSDK",
+    "com.unity.nuget.newtonsoft-json"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "PLAYFAB_PACKAGE"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

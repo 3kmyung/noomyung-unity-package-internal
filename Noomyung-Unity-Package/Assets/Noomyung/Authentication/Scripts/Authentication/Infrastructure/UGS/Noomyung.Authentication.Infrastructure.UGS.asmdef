@@ -1,0 +1,21 @@
+{
+  "name": "Noomyung.Authentication.Infrastructure.UGS",
+  "rootNamespace": "Noomyung.Authentication.Infrastructure",
+  "references": [
+    "Noomyung.Authentication.Domain",
+    "Noomyung.Authentication.Application",
+    "Unity.Services.Authentication",
+    "Unity.Services.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UGS_PACKAGE"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Noomyung.Authentication.Infrastructure.PlayFab",
+  "rootNamespace": "Noomyung.Authentication.Infrastructure",
+  "references": [
+    "Noomyung.Authentication.Domain",
+    "Noomyung.Authentication.Application",
+    "PlayFabSDK"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "PLAYFAB_PACKAGE"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

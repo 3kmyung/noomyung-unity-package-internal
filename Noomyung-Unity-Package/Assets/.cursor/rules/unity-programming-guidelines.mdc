@@ -1,0 +1,58 @@
+---
+description: Unity Programming Guidelines
+globs: []
+alwaysApply: true
+body: |
+## 1. Environment
+- Unity 6.2 (6000.2.1f1), C#
+- .NET Standard 2.1 (default) / .NET Framework 4.8 (optional)  
+- Libraries: Unity API, com.unity.nuget.newtonsoft-json, UniTask (Cysharp)  
+
+## 2. Architecture
+- **DI**: Use constructor injection; avoid service locators/global singletons.  
+- **Assemblies**: Split with asmdef; circular references are forbidden.  
+- **Layering**  
+  1. **Domain**: Business rules; no Unity/external dependencies.  
+  2. **Application**: Use cases; no Unity/external dependencies.  
+  3. **Infrastructure**: Adapters/orchestration (Unity, Addressables, JSON, etc).  
+
+## 3. Namespace & Using
+- Namespace format: `<PackageName(Noomyung[.Detail])>.<Feature>.Domain|Application|Infrastructure`  
+- Namespace Example: `Noomyung.OneStrokePuzzle.Puzzle.Infrastructure`, `Noomyung.Mathematics.Domain`
+- Using order:  
+  1. System  
+  2. Unity  
+  3. External (e.g., Newtonsoft.Json)  
+  4. Noomyung  
+- Within each using group, sort by namespace length (shortest → longest).  
+
+## 4. Logging & Errors
+- Messages should be full sentences.  
+- Only write logs for errors; do not log debug or info messages.  
+
+## 5. Code Style
+- Add one blank line before `return`.  
+- Add one blank line between interface methods.  
+- Do not assign values at declaration → initialize via constructors (MonoBehaviour: `Awake`).  
+- Keep conceptual order in methods (Open→Close, Save→Load, etc).  
+- **Async methods**: Always use the `Async` suffix.  
+- **Private fields**: Use `_camelCase`.  
+- **Variable names**: Avoid symbols (`a`, `b`, `t`) or abbreviations (`docs`, `info`, etc).  
+- Use `#region` for large classes to separate logical sections.  
+
+## 6. Async & Threading
+- Public async APIs use `Task`/`Task<T>` and must end with the `Async` suffix.  
+- Use `ValueTask` only with explicit performance justification.  
+- Use `UniTask` only in Unity-related code (Unity API access must be on the main thread).  
+- Convert Task ↔ UniTask only at boundaries.  
+
+## 7. Testing
+- **Domain, Application**: Pure unit tests.  
+- **Infrastructure**: Integration tests.  
+
+## 8. Output & Packaging
+- Prefer code over prose.  
+- When adding new APIs:  
+  - Provide UPM-ready folder structure  
+  - `.asmdef`  
+---

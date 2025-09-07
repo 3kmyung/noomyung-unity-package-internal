@@ -1,0 +1,20 @@
+{
+    "name": "Noomyung.UI.Infrastructure.Editor",
+    "rootNamespace": "Noomyung.UI.Infrastructure.Editor",
+    "references": [
+        "Noomyung.UI.Domain",
+        "Noomyung.UI.Application",
+        "Noomyung.UI.Infrastructure"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

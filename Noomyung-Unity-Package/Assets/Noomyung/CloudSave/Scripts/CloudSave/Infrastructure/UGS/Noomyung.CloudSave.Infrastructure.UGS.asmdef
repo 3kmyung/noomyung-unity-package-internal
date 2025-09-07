@@ -1,0 +1,21 @@
+{
+  "name": "Noomyung.CloudSave.Infrastructure.UGS",
+  "rootNamespace": "Noomyung.CloudSave.Infrastructure",
+  "references": [
+    "Noomyung.CloudSave.Domain",
+    "Noomyung.CloudSave.Application",
+    "Unity.Services.CloudSave",
+    "Unity.Services.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UGS_PACKAGE"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

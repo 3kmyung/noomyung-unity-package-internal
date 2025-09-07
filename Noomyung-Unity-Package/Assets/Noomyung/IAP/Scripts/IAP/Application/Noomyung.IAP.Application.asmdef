@@ -1,0 +1,16 @@
+{
+  "name": "Noomyung.IAP.Application",
+  "rootNamespace": "Noomyung.IAP.Application",
+  "references": [
+    "Noomyung.IAP.Domain"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

@@ -1,0 +1,1 @@
+Editor utilities can be added here (menu items, validation, etc.).

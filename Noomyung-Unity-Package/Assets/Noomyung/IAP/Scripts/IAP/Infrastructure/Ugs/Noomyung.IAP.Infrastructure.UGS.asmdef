@@ -1,0 +1,22 @@
+{
+  "name": "Noomyung.IAP.Infrastructure.UGS",
+  "rootNamespace": "Noomyung.IAP.Infrastructure",
+  "references": [
+    "Noomyung.IAP.Domain",
+    "Noomyung.IAP.Application",
+    "Unity.Services.IAP",
+    "Unity.Services.Core",
+    "Unity.Services.Economy"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UGS_PACKAGE"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
