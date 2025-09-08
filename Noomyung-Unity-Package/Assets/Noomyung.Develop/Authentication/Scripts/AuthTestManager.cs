@@ -45,7 +45,7 @@ namespace Noomyung.Develop.Authentication
             try
             {
 #if UGS_PACKAGE
-                var ugsService = new UgsAuthenticationService();
+                var ugsService = new UGSAuthenticationAdaptor();
                 _authUseCases = new AuthenticationUseCases(ugsService);
                 Debug.Log("UGS 인증 서비스가 초기화되었습니다.");
 #else

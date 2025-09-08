@@ -2,35 +2,32 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using _3kmyung.Authentication.Domain;
 using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Cysharp.Threading.Tasks;
-using IAuthenticationService = _3kmyung.Authentication.Domain.IAuthenticationService;
+using _3kmyung.Authentication.Domain;
+using IAuthenticationPort = _3kmyung.Authentication.Domain.IAuthenticationPort;
 
 namespace _3kmyung.Authentication.Infrastructure
 {
-    internal sealed class UgsAuthSession : IAuthSession
+    internal sealed class UGSAuthSession : IAuthenticationSession
     {
-        public string PlayerId { get; }
+        public string PlayerGUID { get; }
 
         public bool IsSignedIn { get; }
 
-        public UgsAuthSession(string playerId, bool isSignedIn)
+        public UGSAuthSession(string playerGUID, bool isSignedIn)
         {
-            PlayerId = playerId;
+            PlayerGUID = playerGUID;
             IsSignedIn = isSignedIn;
         }
     }
 
-    public sealed class UgsAuthenticationService : IAuthenticationService
+    public sealed class UGSAuthenticationAdaptor : MonoBehaviour, IAuthenticationPort
     {
         private bool _isInitialized;
-        public UgsAuthenticationService()
-        {
-        }
 
-        public async Task<IAuthSession> SignInAnonymouslyAsync(CancellationToken cancellationToken = default)
+        public async Task<IAuthenticationSession> SignInAnonymouslyAsync(CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
@@ -41,12 +38,12 @@ namespace _3kmyung.Authentication.Infrastructure
                 if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
             }
 
-            var session = new UgsAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
+            var session = new UGSAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
 
             return session;
         }
 
-        public async Task<IAuthSession> SignInWithDeviceID(string deviceID, CancellationToken cancellationToken = default)
+        public async Task<IAuthenticationSession> SignInWithDeviceID(string deviceID, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
@@ -69,12 +66,12 @@ namespace _3kmyung.Authentication.Infrastructure
                 throw;
             }
 
-            var session = new UgsAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
+            var session = new UGSAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
 
             return session;
         }
 
-        public async Task<IAuthSession> SignInWithProviderAsync(AuthenticationProvider provider, string accessToken, CancellationToken cancellationToken = default)
+        public async Task<IAuthenticationSession> SignInWithProviderAsync(AuthenticationProvider provider, string accessToken, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
@@ -111,12 +108,12 @@ namespace _3kmyung.Authentication.Infrastructure
 
             if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
 
-            var session = new UgsAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
+            var session = new UGSAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
 
             return session;
         }
 
-        public async Task<IAuthSession> SignInWithUsernamePasswordAsync(string username, string password, CancellationToken cancellationToken = default)
+        public async Task<IAuthenticationSession> SignInWithUsernameAndPasswordAsync(string username, string password, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
@@ -133,7 +130,7 @@ namespace _3kmyung.Authentication.Infrastructure
 
             if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
 
-            var session = new UgsAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
+            var session = new UGSAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
 
             return session;
         }

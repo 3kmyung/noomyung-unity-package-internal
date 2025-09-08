@@ -7,9 +7,9 @@ namespace _3kmyung.Authentication.Application
 {
     public sealed class AuthenticationUseCases : IDisposable
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthenticationPort _authenticationService;
 
-        public AuthenticationUseCases(IAuthenticationService authenticationService)
+        public AuthenticationUseCases(IAuthenticationPort authenticationService)
         {
             _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
         }
@@ -18,21 +18,21 @@ namespace _3kmyung.Authentication.Application
         {
             var session = await _authenticationService.SignInAnonymouslyAsync(cancellationToken).ConfigureAwait(false);
 
-            return session.PlayerId;
+            return session.PlayerGUID;
         }
 
         public async Task<string> SignInWithProviderAsync(AuthenticationProvider provider, string accessToken, CancellationToken cancellationToken = default)
         {
             var session = await _authenticationService.SignInWithProviderAsync(provider, accessToken, cancellationToken).ConfigureAwait(false);
 
-            return session.PlayerId;
+            return session.PlayerGUID;
         }
 
         public async Task<string> SignInWithUsernamePasswordAsync(string username, string password, CancellationToken cancellationToken = default)
         {
-            var session = await _authenticationService.SignInWithUsernamePasswordAsync(username, password, cancellationToken).ConfigureAwait(false);
+            var session = await _authenticationService.SignInWithUsernameAndPasswordAsync(username, password, cancellationToken).ConfigureAwait(false);
 
-            return session.PlayerId;
+            return session.PlayerGUID;
         }
 
         public Task RegisterWithUsernamePasswordAsync(string username, string password, CancellationToken cancellationToken = default)
@@ -52,7 +52,7 @@ namespace _3kmyung.Authentication.Application
 
         public Task<string> GetPlayerIdAsync(CancellationToken cancellationToken = default)
         {
-            return _authenticationService.GetPlayerIdAsync(cancellationToken);
+            return _authenticationService.GetAuthenticationSessionAsync(cancellationToken);
         }
 
         public Task<bool> IsSignedInAsync(CancellationToken cancellationToken = default)
