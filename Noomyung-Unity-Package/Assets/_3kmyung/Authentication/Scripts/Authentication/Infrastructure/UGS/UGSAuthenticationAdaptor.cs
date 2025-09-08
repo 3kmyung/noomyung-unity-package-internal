@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -10,22 +12,28 @@ using IAuthenticationPort = _3kmyung.Authentication.Domain.IAuthenticationPort;
 
 namespace _3kmyung.Authentication.Infrastructure
 {
-    internal sealed class UGSAuthSession : IAuthenticationSession
-    {
-        public string PlayerGUID { get; }
-
-        public bool IsSignedIn { get; }
-
-        public UGSAuthSession(string playerGUID, bool isSignedIn)
-        {
-            PlayerGUID = playerGUID;
-            IsSignedIn = isSignedIn;
-        }
-    }
-
     public sealed class UGSAuthenticationAdaptor : MonoBehaviour, IAuthenticationPort
     {
+        #region Fields
+
         private bool _isInitialized;
+        private readonly Dictionary<AuthenticationProvider, IProviderAuthenticationAdapter> _providerAdapters;
+
+        #endregion
+
+        #region Constructor
+
+        public UGSAuthenticationAdaptor()
+        {
+            _providerAdapters = new Dictionary<AuthenticationProvider, IProviderAuthenticationAdapter>
+            {
+                { AuthenticationProvider.Google, new UGSGoogleAuthenticationAdapter() },
+                { AuthenticationProvider.Apple, new UGSAppleAuthenticationAdapter() },
+                { AuthenticationProvider.Facebook, new UGSFacebookAuthenticationAdapter() }
+            };
+        }
+
+        #endregion
 
         public async Task<IAuthenticationSession> SignInAnonymouslyAsync(CancellationToken cancellationToken = default)
         {
@@ -35,38 +43,10 @@ namespace _3kmyung.Authentication.Infrastructure
             {
                 await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
 
-                if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
             }
 
-            var session = new UGSAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
-
-            return session;
-        }
-
-        public async Task<IAuthenticationSession> SignInWithDeviceID(string deviceID, CancellationToken cancellationToken = default)
-        {
-            await EnsureInitializedAsync(cancellationToken);
-
-            try
-            {
-                // UGS에서는 Device ID를 직접 지원하지 않으므로
-                // 익명 로그인을 사용하고 Device ID를 별도로 저장하는 방식을 사용합니다.
-                Debug.LogWarning("UGS does not support direct Device ID authentication. Using anonymous login with device ID storage.");
-
-                if (!AuthenticationService.Instance.IsSignedIn)
-                {
-                    await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
-                }
-
-                if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Device ID authentication failed. {ex.Message}");
-                throw;
-            }
-
-            var session = new UGSAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
+            var session = new UGSAuthenticationSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
 
             return session;
         }
@@ -77,38 +57,33 @@ namespace _3kmyung.Authentication.Infrastructure
 
             try
             {
-                switch (provider)
+                // Custom Provider는 익명 로그인으로 처리
+                if (provider == AuthenticationProvider.Custom)
                 {
-                    case AuthenticationProvider.Google:
-                        await AuthenticationService.Instance.SignInWithGoogleAsync(accessToken).AsUniTask();
-                        break;
-                    case AuthenticationProvider.Apple:
-                        await AuthenticationService.Instance.SignInWithAppleAsync(accessToken).AsUniTask();
-                        break;
-                    case AuthenticationProvider.Facebook:
-                        await AuthenticationService.Instance.SignInWithFacebookAsync(accessToken).AsUniTask();
-                        break;
-                    case AuthenticationProvider.Custom:
-                        // UGS에서 Custom Token 로그인을 직접 지원하지 않으므로
-                        // 익명 로그인을 사용하고 Custom Token을 별도로 저장합니다.
-                        Debug.LogWarning("UGS does not support direct Custom Token authentication. Using anonymous login with token storage.");
-                        await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
-                        break;
-                    default:
-                        await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
-                        break;
+                    await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
+                }
+                else
+                {
+                    // Dictionary에서 해당 Provider 어댑터를 찾아 로그인 수행
+                    if (_providerAdapters.TryGetValue(provider, out var adapter))
+                    {
+                        return await adapter.SignInAsync(accessToken, cancellationToken);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException($"Provider {provider} is not supported.");
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Debug.LogError($"Authentication failed. {ex.Message}");
-
                 throw;
             }
 
             if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
 
-            var session = new UGSAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
+            var session = new UGSAuthenticationSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
 
             return session;
         }
@@ -130,7 +105,7 @@ namespace _3kmyung.Authentication.Infrastructure
 
             if (cancellationToken.IsCancellationRequested) cancellationToken.ThrowIfCancellationRequested();
 
-            var session = new UGSAuthSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
+            var session = new UGSAuthenticationSession(AuthenticationService.Instance.PlayerId, AuthenticationService.Instance.IsSignedIn);
 
             return session;
         }
@@ -161,29 +136,25 @@ namespace _3kmyung.Authentication.Infrastructure
 
             try
             {
-                switch (provider)
+                // Custom Provider는 지원하지 않음
+                if (provider == AuthenticationProvider.Custom)
                 {
-                    case AuthenticationProvider.Google:
-                        await AuthenticationService.Instance.LinkWithGoogleAsync(accessToken).AsUniTask();
-                        break;
-                    case AuthenticationProvider.Apple:
-                        await AuthenticationService.Instance.LinkWithAppleAsync(accessToken).AsUniTask();
-                        break;
-                    case AuthenticationProvider.Facebook:
-                        await AuthenticationService.Instance.LinkWithFacebookAsync(accessToken).AsUniTask();
-                        break;
-                    case AuthenticationProvider.Custom:
-                        // UGS에서 Custom Token 링크를 직접 지원하지 않으므로
-                        // 예외를 발생시킵니다.
-                        throw new NotSupportedException("UGS does not support linking with Custom Token. Use other supported providers.");
-                    default:
-                        throw new NotSupportedException($"Linking provider {provider} is not supported.");
+                    throw new NotSupportedException("UGS does not support linking with Custom Token. Use other supported providers.");
+                }
+
+                // Dictionary에서 해당 Provider 어댑터를 찾아 링크 수행
+                if (_providerAdapters.TryGetValue(provider, out var adapter))
+                {
+                    await adapter.LinkAsync(accessToken, cancellationToken);
+                }
+                else
+                {
+                    throw new NotSupportedException($"Linking provider {provider} is not supported.");
                 }
             }
             catch (Exception ex)
             {
                 Debug.LogError($"Linking failed. {ex.Message}");
-
                 throw;
             }
         }
@@ -194,29 +165,25 @@ namespace _3kmyung.Authentication.Infrastructure
 
             try
             {
-                switch (provider)
+                // Custom Provider는 지원하지 않음
+                if (provider == AuthenticationProvider.Custom)
                 {
-                    case AuthenticationProvider.Google:
-                        await AuthenticationService.Instance.UnlinkGoogleAsync().AsUniTask();
-                        break;
-                    case AuthenticationProvider.Apple:
-                        await AuthenticationService.Instance.UnlinkAppleAsync().AsUniTask();
-                        break;
-                    case AuthenticationProvider.Facebook:
-                        await AuthenticationService.Instance.UnlinkFacebookAsync().AsUniTask();
-                        break;
-                    case AuthenticationProvider.Custom:
-                        // UGS에서 Custom Token 언링크를 직접 지원하지 않으므로
-                        // 예외를 발생시킵니다.
-                        throw new NotSupportedException("UGS does not support unlinking Custom Token. Use other supported providers.");
-                    default:
-                        throw new NotSupportedException($"Unlinking provider {provider} is not supported.");
+                    throw new NotSupportedException("UGS does not support unlinking Custom Token. Use other supported providers.");
+                }
+
+                // Dictionary에서 해당 Provider 어댑터를 찾아 언링크 수행
+                if (_providerAdapters.TryGetValue(provider, out var adapter))
+                {
+                    await adapter.UnlinkProviderAsync(provider, cancellationToken);
+                }
+                else
+                {
+                    throw new NotSupportedException($"Unlinking provider {provider} is not supported.");
                 }
             }
             catch (Exception ex)
             {
                 Debug.LogError($"Unlinking failed. {ex.Message}");
-
                 throw;
             }
         }
@@ -345,5 +312,14 @@ namespace _3kmyung.Authentication.Infrastructure
         {
         }
 
+        public Task UnregisterWithUsernamePasswordAsync(string username, string password, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IAuthenticationSession> GetAuthenticationSessionAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

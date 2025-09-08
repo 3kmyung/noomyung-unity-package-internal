@@ -2,7 +2,7 @@ namespace _3kmyung.Authentication.Domain
 {
     public interface IAuthenticationSession
     {
-        string PlayerGUID { get; }
+        string PlayerID { get; }
 
         bool IsSignedIn { get; }
     }
