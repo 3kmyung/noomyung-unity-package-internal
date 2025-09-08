@@ -1,0 +1,53 @@
+{
+    "name": "com.3kmyung.gamestack",
+    "version": "1.0.0",
+    "displayName": "3kmyung Game Stack",
+    "description": "Authentication, Cloud Save, IAP, UI, and Scene Management utilities for Unity projects.",
+    "unity": "6000.2",
+    "author": {
+        "name": "3kmyung",
+        "url": "https://github.com/3kmyung"
+    },
+    "hideInEditor": false,
+    "dependencies": {
+        "com.unity.services.authentication": "3.5.1",
+        "com.unity.services.cloudsave": "3.2.2",
+        "com.unity.services.economy": "3.5.2",
+        "com.unity.purchasing": "5.0.1",
+        "com.unity.ugui": "2.0.0",
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.cysharp.unitask": "2.5.4"
+    },
+    "samples": [
+        {
+            "displayName": "Auth + CloudSave Quickstart",
+            "description": "Minimal login and save/load example.",
+            "path": "Samples~/AuthCloudSave"
+        },
+        {
+            "displayName": "IAP (UGS Economy + Purchasing)",
+            "description": "Purchase flow + receipt validation hook points.",
+            "path": "Samples~/IAP"
+        },
+        {
+            "displayName": "UI + Scene Management",
+            "description": "Basic loading overlay, async scene change.",
+            "path": "Samples~/UIAndScenes"
+        }
+    ],
+    "keywords": [
+        "3kmyung",
+        "authentication",
+        "cloudsave",
+        "iap",
+        "economy",
+        "ui",
+        "scenes",
+        "unitask",
+        "utilities"
+    ],
+    "license": "UNLICENSED",
+    "bugs": {
+        "url": "https://github.com/3kmyung/com.3kmyung.gamestack/issues"
+    }
+}

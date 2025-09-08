@@ -1,0 +1,21 @@
+{
+  "name": "_3kmyung.CloudSave.Infrastructure.UGS",
+  "rootNamespace": "_3kmyung.CloudSave.Infrastructure",
+  "references": [
+    "_3kmyung.CloudSave.Domain",
+    "_3kmyung.CloudSave.Application",
+    "Unity.Services.CloudSave",
+    "Unity.Services.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UGS_PACKAGE"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

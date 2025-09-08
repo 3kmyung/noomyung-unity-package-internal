@@ -1,0 +1,16 @@
+{
+  "name": "_3kmyung.CloudSave.Application",
+  "rootNamespace": "_3kmyung.CloudSave.Application",
+  "references": [
+    "_3kmyung.CloudSave.Domain"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

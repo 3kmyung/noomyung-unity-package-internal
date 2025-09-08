@@ -1,0 +1,19 @@
+{
+  "name": "_3kmyung.CloudSave.Infrastructure.Core",
+  "rootNamespace": "_3kmyung.CloudSave.Infrastructure",
+  "references": [
+    "_3kmyung.CloudSave.Domain",
+    "_3kmyung.CloudSave.Application"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [
+    "com.unity.nuget.newtonsoft-json"
+  ],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

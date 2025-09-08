@@ -1,0 +1,17 @@
+{
+  "name": "_3kmyung.Authentication.Infrastructure.Core",
+  "rootNamespace": "_3kmyung.Authentication.Infrastructure",
+  "references": [
+    "_3kmyung.Authentication.Domain",
+    "_3kmyung.Authentication.Application"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
