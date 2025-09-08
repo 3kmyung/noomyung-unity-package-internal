@@ -3,9 +3,9 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Noomyung.Authentication.Application;
-using Noomyung.Authentication.Infrastructure;
-using Noomyung.Authentication.Domain;
+using _3kmyung.Authentication.Application;
+using _3kmyung.Authentication.Infrastructure;
+using _3kmyung.Authentication.Domain;
 using Cysharp.Threading.Tasks;
 
 namespace Noomyung.Develop.Authentication
@@ -28,7 +28,7 @@ namespace Noomyung.Develop.Authentication
         [SerializeField] private TextMeshProUGUI playerIdText;
 
 
-        private AuthUseCases _authUseCases;
+        private AuthenticationUseCases _authUseCases;
         private CancellationTokenSource _cancellationTokenSource;
 
         private void Start()
@@ -45,15 +45,15 @@ namespace Noomyung.Develop.Authentication
             try
             {
 #if UGS_PACKAGE
-                var ugsService = new UgsAuthService();
-                _authUseCases = new AuthUseCases(ugsService);
+                var ugsService = new UgsAuthenticationService();
+                _authUseCases = new AuthenticationUseCases(ugsService);
                 Debug.Log("UGS 인증 서비스가 초기화되었습니다.");
 #else
-                var playFabService = new PlayFabAuthService();
-                _authUseCases = new AuthUseCases(playFabService);
+                var playFabService = new PlayFabAuthenticationService();
+                _authUseCases = new AuthenticationUseCases(playFabService);
                 Debug.Log("PlayFab 인증 서비스가 초기화되었습니다.");
 #endif
-                
+
 
                 UpdateStatusText("인증 서비스가 초기화되었습니다.");
             }
@@ -439,7 +439,7 @@ namespace Noomyung.Develop.Authentication
             {
                 bool isSignedIn = await _authUseCases.IsSignedInAsync().AsUniTask();
                 var playerId = await _authUseCases.GetPlayerIdAsync().AsUniTask();
-                
+
                 Debug.Log($"Login state check - IsSignedIn: {isSignedIn}, PlayerId: '{playerId}'");
                 return isSignedIn;
             }

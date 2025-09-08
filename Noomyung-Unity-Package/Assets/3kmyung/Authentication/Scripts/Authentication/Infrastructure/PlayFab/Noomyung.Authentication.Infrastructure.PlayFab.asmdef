@@ -1,9 +1,9 @@
 {
-  "name": "Noomyung.Authentication.Infrastructure.PlayFab",
-  "rootNamespace": "Noomyung.Authentication.Infrastructure",
+  "name": "_3kmyung.Authentication.Infrastructure.PlayFab",
+  "rootNamespace": "_3kmyung.Authentication.Infrastructure",
   "references": [
-    "Noomyung.Authentication.Domain",
-    "Noomyung.Authentication.Application",
+    "_3kmyung.Authentication.Domain",
+    "_3kmyung.Authentication.Application",
     "PlayFabSDK",
     "UniTask"
   ],

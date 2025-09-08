@@ -1127,6 +1127,7 @@ MonoBehaviour:
   loginButton: {fileID: 182616568}
   anonymousLoginButton: {fileID: 978298132}
   signOutButton: {fileID: 2015548848}
+  resetAllButton: {fileID: 0}
   statusText: {fileID: 927982693}
   playerIdText: {fileID: 558318182}
 --- !u!4 &2110622800

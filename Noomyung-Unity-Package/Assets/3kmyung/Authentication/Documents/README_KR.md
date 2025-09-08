@@ -26,9 +26,9 @@ Unity용 인증 시스템 패키지입니다. Clean Architecture와 SOLID 원칙
 ```
 Authentication/
 ├── Domain/           # 비즈니스 로직 및 인터페이스
-│   └── IAuthService.cs
+│   └── IAuthenticationService.cs
 ├── Application/      # 유스케이스 및 애플리케이션 로직
-│   └── AuthUseCases.cs
+│   └── AuthenticationUseCases.cs
 └── Infrastructure/   # 외부 서비스 구현체
     ├── Core/         # 기본 인프라스트럭처
     ├── PlayFab/      # PlayFab 구현체
@@ -84,26 +84,26 @@ using 3kmyung.Authentication.Application;
 using 3kmyung.Authentication.Infrastructure;
 using 3kmyung.Authentication.Domain;
 
-public class AuthManager : MonoBehaviour
+public class AuthenticationManager : MonoBehaviour
 {
-    private AuthUseCases _authUseCases;
+    private AuthenticationUseCases _authenticationUseCases;
     
     private void Start()
     {
         // PlayFab 사용 시
-        var playFabService = new PlayFabAuthService();
-        _authUseCases = new AuthUseCases(playFabService);
+        var playFabService = new PlayFabAuthenticationService();
+        _authenticationUseCases = new AuthenticationUseCases(playFabService);
         
         // 또는 UGS 사용 시
-        // var ugsService = new UgsAuthService();
-        // _authUseCases = new AuthUseCases(ugsService);
+        // var ugsService = new UgsAuthenticationService();
+        // _authenticationUseCases = new AuthenticationUseCases(ugsService);
     }
     
     public async void SignInAnonymously()
     {
         try
         {
-            var playerId = await _authUseCases.SignInAnonymouslyAsync();
+            var playerId = await _authenticationUseCases.SignInAnonymouslyAsync();
             Debug.Log($"로그인 성공: {playerId}");
         }
         catch (Exception ex)
@@ -121,8 +121,8 @@ public async void SignInWithGoogle(string googleToken)
 {
     try
     {
-        var playerId = await _authUseCases.SignInWithProviderAsync(
-            AuthProvider.Google, 
+        var playerId = await _authenticationUseCases.SignInWithProviderAsync(
+            AuthenticationProvider.Google, 
             googleToken
         );
         Debug.Log($"Google 로그인 성공: {playerId}");
@@ -142,7 +142,7 @@ public async void RegisterUser(string username, string password)
 {
     try
     {
-        await _authUseCases.RegisterWithUsernamePasswordAsync(username, password);
+        await _authenticationUseCases.RegisterWithUsernamePasswordAsync(username, password);
         Debug.Log("사용자 등록 성공");
     }
     catch (Exception ex)
@@ -156,7 +156,7 @@ public async void SignInWithUsernamePassword(string username, string password)
 {
     try
     {
-        var playerId = await _authUseCases.SignInWithUsernamePasswordAsync(username, password);
+        var playerId = await _authenticationUseCases.SignInWithUsernamePasswordAsync(username, password);
         Debug.Log($"Username/Password 로그인 성공: {playerId}");
     }
     catch (Exception ex)
@@ -174,7 +174,7 @@ public async void LinkGoogleAccount(string googleToken)
 {
     try
     {
-        await _authUseCases.LinkProviderAsync(AuthProvider.Google, googleToken);
+        await _authenticationUseCases.LinkProviderAsync(AuthenticationProvider.Google, googleToken);
         Debug.Log("Google 계정 연결 완료");
     }
     catch (Exception ex)
@@ -188,7 +188,7 @@ public async void UnlinkGoogleAccount()
 {
     try
     {
-        await _authUseCases.UnlinkProviderAsync(AuthProvider.Google);
+        await _authenticationUseCases.UnlinkProviderAsync(AuthenticationProvider.Google);
         Debug.Log("Google 계정 해제 완료");
     }
     catch (Exception ex)
@@ -210,7 +210,7 @@ public async void SignInWithCancellation()
     
     try
     {
-        var playerId = await _authUseCases.SignInAnonymouslyAsync(
+        var playerId = await _authenticationUseCases.SignInAnonymouslyAsync(
             cancellationTokenSource.Token
         );
         Debug.Log($"로그인 성공: {playerId}");
@@ -228,7 +228,7 @@ public async void SignInWithCancellation()
 
 ## 📚 API 참조
 
-### AuthUseCases
+### AuthenticationUseCases
 
 인증 관련 모든 유스케이스를 제공하는 메인 클래스입니다.
 
@@ -245,7 +245,7 @@ public async void SignInWithCancellation()
 | `GetPlayerIdAsync` | 플레이어 ID 조회 | `Task<string>` |
 | `SignOutAsync` | 로그아웃 | `Task` |
 
-### AuthProvider 열거형
+### AuthenticationProvider 열거형
 
 지원하는 인증 제공자 목록:
 
@@ -269,12 +269,12 @@ using 3kmyung.Authentication.Application;
 using 3kmyung.Authentication.Infrastructure;
 using 3kmyung.Authentication.Domain;
 
-public class CompleteAuthManager : MonoBehaviour
+public class CompleteAuthenticationManager : MonoBehaviour
 {
     [Header("인증 설정")]
     [SerializeField] private bool usePlayFab = true;
     
-    private AuthUseCases _authUseCases;
+    private AuthenticationUseCases _authenticationUseCases;
     private CancellationTokenSource _cancellationTokenSource;
     
     public event Action<string> OnSignInSuccess;
@@ -284,23 +284,23 @@ public class CompleteAuthManager : MonoBehaviour
     private void Awake()
     {
         _cancellationTokenSource = new CancellationTokenSource();
-        InitializeAuthService();
+        InitializeAuthenticationService();
     }
     
-    private void InitializeAuthService()
+    private void InitializeAuthenticationService()
     {
-        IAuthService authService = usePlayFab 
-            ? new PlayFabAuthService() 
-            : new UgsAuthService();
+        IAuthenticationService authService = usePlayFab 
+            ? new PlayFabAuthenticationService() 
+            : new UgsAuthenticationService();
             
-        _authUseCases = new AuthUseCases(authService);
+        _authenticationUseCases = new AuthenticationUseCases(authService);
     }
     
     public async void SignInAnonymously()
     {
         try
         {
-            var playerId = await _authUseCases.SignInAnonymouslyAsync(
+            var playerId = await _authenticationUseCases.SignInAnonymouslyAsync(
                 _cancellationTokenSource.Token
             );
             OnSignInSuccess?.Invoke(playerId);
@@ -319,8 +319,8 @@ public class CompleteAuthManager : MonoBehaviour
     {
         try
         {
-            var playerId = await _authUseCases.SignInWithProviderAsync(
-                AuthProvider.Google, 
+            var playerId = await _authenticationUseCases.SignInWithProviderAsync(
+                AuthenticationProvider.Google, 
                 googleToken, 
                 _cancellationTokenSource.Token
             );
@@ -340,7 +340,7 @@ public class CompleteAuthManager : MonoBehaviour
     {
         try
         {
-            await _authUseCases.RegisterWithUsernamePasswordAsync(
+            await _authenticationUseCases.RegisterWithUsernamePasswordAsync(
                 username, 
                 password, 
                 _cancellationTokenSource.Token
@@ -361,7 +361,7 @@ public class CompleteAuthManager : MonoBehaviour
     {
         try
         {
-            var playerId = await _authUseCases.SignInWithUsernamePasswordAsync(
+            var playerId = await _authenticationUseCases.SignInWithUsernamePasswordAsync(
                 username, 
                 password, 
                 _cancellationTokenSource.Token
@@ -382,7 +382,7 @@ public class CompleteAuthManager : MonoBehaviour
     {
         try
         {
-            await _authUseCases.SignOutAsync(_cancellationTokenSource.Token);
+            await _authenticationUseCases.SignOutAsync(_cancellationTokenSource.Token);
             OnSignOutSuccess?.Invoke();
         }
         catch (Exception ex)
@@ -395,7 +395,7 @@ public class CompleteAuthManager : MonoBehaviour
     {
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
-        _authUseCases?.Dispose();
+        _authenticationUseCases?.Dispose();
     }
 }
 ```

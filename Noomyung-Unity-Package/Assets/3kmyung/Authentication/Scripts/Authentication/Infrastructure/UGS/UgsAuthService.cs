@@ -2,12 +2,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using Noomyung.Authentication.Domain;
+using _3kmyung.Authentication.Domain;
 using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Cysharp.Threading.Tasks;
+using IAuthenticationService = _3kmyung.Authentication.Domain.IAuthenticationService;
 
-namespace Noomyung.Authentication.Infrastructure
+namespace _3kmyung.Authentication.Infrastructure
 {
     internal sealed class UgsAuthSession : IAuthSession
     {
@@ -22,10 +23,10 @@ namespace Noomyung.Authentication.Infrastructure
         }
     }
 
-    public sealed class UgsAuthService : IAuthService
+    public sealed class UgsAuthenticationService : IAuthenticationService
     {
         private bool _isInitialized;
-        public UgsAuthService()
+        public UgsAuthenticationService()
         {
         }
 
@@ -54,7 +55,7 @@ namespace Noomyung.Authentication.Infrastructure
                 // UGS에서는 Device ID를 직접 지원하지 않으므로
                 // 익명 로그인을 사용하고 Device ID를 별도로 저장하는 방식을 사용합니다.
                 Debug.LogWarning("UGS does not support direct Device ID authentication. Using anonymous login with device ID storage.");
-                
+
                 if (!AuthenticationService.Instance.IsSignedIn)
                 {
                     await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
@@ -73,7 +74,7 @@ namespace Noomyung.Authentication.Infrastructure
             return session;
         }
 
-        public async Task<IAuthSession> SignInWithProviderAsync(AuthProvider provider, string accessToken, CancellationToken cancellationToken = default)
+        public async Task<IAuthSession> SignInWithProviderAsync(AuthenticationProvider provider, string accessToken, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
@@ -81,16 +82,16 @@ namespace Noomyung.Authentication.Infrastructure
             {
                 switch (provider)
                 {
-                    case AuthProvider.Google:
+                    case AuthenticationProvider.Google:
                         await AuthenticationService.Instance.SignInWithGoogleAsync(accessToken).AsUniTask();
                         break;
-                    case AuthProvider.Apple:
+                    case AuthenticationProvider.Apple:
                         await AuthenticationService.Instance.SignInWithAppleAsync(accessToken).AsUniTask();
                         break;
-                    case AuthProvider.Facebook:
+                    case AuthenticationProvider.Facebook:
                         await AuthenticationService.Instance.SignInWithFacebookAsync(accessToken).AsUniTask();
                         break;
-                    case AuthProvider.Custom:
+                    case AuthenticationProvider.Custom:
                         // UGS에서 Custom Token 로그인을 직접 지원하지 않으므로
                         // 익명 로그인을 사용하고 Custom Token을 별도로 저장합니다.
                         Debug.LogWarning("UGS does not support direct Custom Token authentication. Using anonymous login with token storage.");
@@ -147,7 +148,7 @@ namespace Noomyung.Authentication.Infrastructure
                 // 이는 실제로는 서버에 사용자를 등록하는 것이 아니라
                 // UGS의 Username/Password 인증 시스템에 사용자를 등록하는 것입니다.
                 await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password).AsUniTask();
-                
+
                 Debug.Log($"User registered successfully with username: {username}");
             }
             catch (Exception ex)
@@ -157,7 +158,7 @@ namespace Noomyung.Authentication.Infrastructure
             }
         }
 
-        public async Task LinkProviderAsync(AuthProvider provider, string accessToken, CancellationToken cancellationToken = default)
+        public async Task LinkProviderAsync(AuthenticationProvider provider, string accessToken, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
@@ -165,16 +166,16 @@ namespace Noomyung.Authentication.Infrastructure
             {
                 switch (provider)
                 {
-                    case AuthProvider.Google:
+                    case AuthenticationProvider.Google:
                         await AuthenticationService.Instance.LinkWithGoogleAsync(accessToken).AsUniTask();
                         break;
-                    case AuthProvider.Apple:
+                    case AuthenticationProvider.Apple:
                         await AuthenticationService.Instance.LinkWithAppleAsync(accessToken).AsUniTask();
                         break;
-                    case AuthProvider.Facebook:
+                    case AuthenticationProvider.Facebook:
                         await AuthenticationService.Instance.LinkWithFacebookAsync(accessToken).AsUniTask();
                         break;
-                    case AuthProvider.Custom:
+                    case AuthenticationProvider.Custom:
                         // UGS에서 Custom Token 링크를 직접 지원하지 않으므로
                         // 예외를 발생시킵니다.
                         throw new NotSupportedException("UGS does not support linking with Custom Token. Use other supported providers.");
@@ -190,7 +191,7 @@ namespace Noomyung.Authentication.Infrastructure
             }
         }
 
-        public async Task UnlinkProviderAsync(AuthProvider provider, CancellationToken cancellationToken = default)
+        public async Task UnlinkProviderAsync(AuthenticationProvider provider, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
@@ -198,16 +199,16 @@ namespace Noomyung.Authentication.Infrastructure
             {
                 switch (provider)
                 {
-                    case AuthProvider.Google:
+                    case AuthenticationProvider.Google:
                         await AuthenticationService.Instance.UnlinkGoogleAsync().AsUniTask();
                         break;
-                    case AuthProvider.Apple:
+                    case AuthenticationProvider.Apple:
                         await AuthenticationService.Instance.UnlinkAppleAsync().AsUniTask();
                         break;
-                    case AuthProvider.Facebook:
+                    case AuthenticationProvider.Facebook:
                         await AuthenticationService.Instance.UnlinkFacebookAsync().AsUniTask();
                         break;
-                    case AuthProvider.Custom:
+                    case AuthenticationProvider.Custom:
                         // UGS에서 Custom Token 언링크를 직접 지원하지 않으므로
                         // 예외를 발생시킵니다.
                         throw new NotSupportedException("UGS does not support unlinking Custom Token. Use other supported providers.");
@@ -246,17 +247,17 @@ namespace Noomyung.Authentication.Infrastructure
                 // IsSignedIn으로 실제 로그인 상태를 확인
                 bool isActuallySignedIn = AuthenticationService.Instance.IsSignedIn;
                 var currentPlayerId = AuthenticationService.Instance.PlayerId;
-                
+
                 Debug.Log($"UGS SignOut check - IsSignedIn: {isActuallySignedIn}, PlayerId: '{currentPlayerId}'");
-                
+
                 if (isActuallySignedIn)
                 {
                     Debug.Log("Starting UGS sign out process...");
                     AuthenticationService.Instance.SignOut();
-                    
+
                     // 로그아웃 상태를 지속적으로 확인
                     await WaitForSignOutCompletion(cancellationToken);
-                    
+
                     Debug.Log("UGS Sign out completed successfully");
                 }
                 else
@@ -290,9 +291,9 @@ namespace Noomyung.Authentication.Infrastructure
                 // IsSignedIn이 false가 되면 로그아웃 완료로 간주
                 bool isSignedIn = AuthenticationService.Instance.IsSignedIn;
                 var playerId = AuthenticationService.Instance.PlayerId;
-                
+
                 Debug.Log($"UGS Sign out check - IsSignedIn: {isSignedIn}, PlayerId: '{playerId}', Elapsed: {elapsedTime}ms");
-                
+
                 if (!isSignedIn)
                 {
                     Debug.Log("UGS Sign out completed - IsSignedIn is false");
@@ -301,18 +302,18 @@ namespace Noomyung.Authentication.Infrastructure
 
                 await UniTask.Delay(checkInterval, cancellationToken: cancellationToken);
                 elapsedTime += checkInterval;
-                
+
                 // 1초마다 진행 상황 로그
                 if (elapsedTime % 1000 == 0)
                 {
-                    Debug.Log($"UGS Sign out in progress... ({elapsedTime/1000}s elapsed)");
+                    Debug.Log($"UGS Sign out in progress... ({elapsedTime / 1000}s elapsed)");
                 }
             }
 
             // 타임아웃 후 최종 확인
             bool finalIsSignedIn = AuthenticationService.Instance.IsSignedIn;
             var finalPlayerId = AuthenticationService.Instance.PlayerId;
-            
+
             if (finalIsSignedIn)
             {
                 Debug.LogWarning($"UGS Sign out timeout - IsSignedIn: {finalIsSignedIn}, PlayerId: '{finalPlayerId}'");

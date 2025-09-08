@@ -1,0 +1,24 @@
+{
+  "name": "Noomyung.Develop.Authentication",
+  "rootNamespace": "Noomyung.Develop.Authentication",
+  "references": [
+    "_3kmyung.Authentication.Domain",
+    "_3kmyung.Authentication.Application",
+    "_3kmyung.Authentication.Infrastructure.Core",
+    "_3kmyung.Authentication.Infrastructure.UGS",
+    "_3kmyung.Authentication.Infrastructure.PlayFab",
+    "UniTask",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UGS_PACKAGE"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

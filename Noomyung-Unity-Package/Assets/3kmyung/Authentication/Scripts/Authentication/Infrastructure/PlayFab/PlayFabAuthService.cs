@@ -2,12 +2,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using Noomyung.Authentication.Domain;
+using _3kmyung.Authentication.Domain;
 using PlayFab;
 using PlayFab.ClientModels;
 using Cysharp.Threading.Tasks;
 
-namespace Noomyung.Authentication.Infrastructure
+namespace _3kmyung.Authentication.Infrastructure
 {
     internal sealed class PlayFabAuthSession : IAuthSession
     {
@@ -22,9 +22,9 @@ namespace Noomyung.Authentication.Infrastructure
         }
     }
 
-    public sealed class PlayFabAuthService : IAuthService
+    public sealed class PlayFabAuthenticationService : IAuthenticationService
     {
-        public PlayFabAuthService()
+        public PlayFabAuthenticationService()
         {
         }
 
@@ -49,7 +49,7 @@ namespace Noomyung.Authentication.Infrastructure
             return session;
         }
 
-        public async Task<IAuthSession> SignInWithProviderAsync(AuthProvider provider, string accessToken, CancellationToken cancellationToken = default)
+        public async Task<IAuthSession> SignInWithProviderAsync(AuthenticationProvider provider, string accessToken, CancellationToken cancellationToken = default)
         {
             var tcs = new TaskCompletionSource<LoginResult>();
 
@@ -57,22 +57,22 @@ namespace Noomyung.Authentication.Infrastructure
             {
                 switch (provider)
                 {
-                    case AuthProvider.Google:
+                    case AuthenticationProvider.Google:
                         PlayFabClientAPI.LoginWithGoogleAccount(new LoginWithGoogleAccountRequest { ServerAuthCode = accessToken, CreateAccount = true },
                             r => tcs.TrySetResult(r),
                             e => { Debug.LogError($"PlayFab Google login failed. {e.ErrorMessage}"); tcs.TrySetException(new Exception(e.ErrorMessage)); });
                         break;
-                    case AuthProvider.Apple:
+                    case AuthenticationProvider.Apple:
                         PlayFabClientAPI.LoginWithApple(new LoginWithAppleRequest { IdentityToken = accessToken, CreateAccount = true },
                             r => tcs.TrySetResult(r),
                             e => { Debug.LogError($"PlayFab Apple login failed. {e.ErrorMessage}"); tcs.TrySetException(new Exception(e.ErrorMessage)); });
                         break;
-                    case AuthProvider.Facebook:
+                    case AuthenticationProvider.Facebook:
                         PlayFabClientAPI.LoginWithFacebook(new LoginWithFacebookRequest { AccessToken = accessToken, CreateAccount = true },
                             r => tcs.TrySetResult(r),
                             e => { Debug.LogError($"PlayFab Facebook login failed. {e.ErrorMessage}"); tcs.TrySetException(new Exception(e.ErrorMessage)); });
                         break;
-                    case AuthProvider.Custom:
+                    case AuthenticationProvider.Custom:
                         PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest { CustomId = accessToken, CreateAccount = true },
                             r => tcs.TrySetResult(r),
                             e => { Debug.LogError($"PlayFab custom login failed. {e.ErrorMessage}"); tcs.TrySetException(new Exception(e.ErrorMessage)); });
@@ -150,19 +150,19 @@ namespace Noomyung.Authentication.Infrastructure
             }
 
             var result = await tcs.Task.AsUniTask();
-            
+
             // Register 성공 후 자동으로 로그인을 수행합니다.
             // 이렇게 하면 Register 후 즉시 로그인된 상태가 됩니다.
             Debug.Log($"User registered successfully with username: {username}. Auto-login will be performed.");
         }
 
-        public Task LinkProviderAsync(AuthProvider provider, string accessToken, CancellationToken cancellationToken = default)
+        public Task LinkProviderAsync(AuthenticationProvider provider, string accessToken, CancellationToken cancellationToken = default)
         {
             // Implement provider linking as needed (e.g., AddUsernamePassword, LinkGoogleAccount etc.).
             return Task.CompletedTask;
         }
 
-        public Task UnlinkProviderAsync(AuthProvider provider, CancellationToken cancellationToken = default)
+        public Task UnlinkProviderAsync(AuthenticationProvider provider, CancellationToken cancellationToken = default)
         {
             // Implement provider unlink as needed (e.g., UnlinkGoogleAccount, UnlinkCustomID etc.).
             return Task.CompletedTask;
@@ -181,10 +181,10 @@ namespace Noomyung.Authentication.Infrastructure
                 if (PlayFabSettings.staticPlayer != null && !string.IsNullOrEmpty(PlayFabSettings.staticPlayer.PlayFabId))
                 {
                     PlayFabClientAPI.ForgetAllCredentials();
-                    
+
                     // 로그아웃 상태를 지속적으로 확인
                     await WaitForSignOutCompletion(cancellationToken);
-                    
+
                     Debug.Log("PlayFab Sign out completed successfully");
                 }
                 else

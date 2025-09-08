@@ -1,17 +1,16 @@
 {
-  "name": "_3kmyung.Authentication.Application",
-  "rootNamespace": "_3kmyung.Authentication.Application",
-  "references": [
-    "GUID:00000000000000000000000000000000",
-    "_3kmyung.Authentication.Domain"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": true
+    "name": "_3kmyung.Authentication.Application",
+    "rootNamespace": "_3kmyung.Authentication.Application",
+    "references": [
+        "GUID:7e6f4b6aba236964c9caf9f324b7a4be"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
 }

@@ -2,11 +2,11 @@
   "name": "Noomyung.Develop.CloudSave",
   "rootNamespace": "Noomyung.Develop.CloudSave",
   "references": [
-    "Noomyung.CloudSave.Domain",
-    "Noomyung.CloudSave.Application",
-    "Noomyung.CloudSave.Infrastructure.Core",
-    "Noomyung.CloudSave.Infrastructure.UGS",
-    "Noomyung.CloudSave.Infrastructure.PlayFab"
+    "_3kmyung.CloudSave.Domain",
+    "_3kmyung.CloudSave.Application",
+    "_3kmyung.CloudSave.Infrastructure.Core",
+    "_3kmyung.CloudSave.Infrastructure.UGS",
+    "_3kmyung.CloudSave.Infrastructure.PlayFab"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

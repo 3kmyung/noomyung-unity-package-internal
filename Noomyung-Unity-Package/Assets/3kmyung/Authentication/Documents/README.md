@@ -19,16 +19,16 @@ A Unity authentication system package designed with Clean Architecture and SOLID
 - **Asynchronous Processing**: Full async/await pattern support
 - **Cancellation Token Support**: Task cancellation via CancellationToken
 - **Conditional Compilation**: Optimized build size by including only required services
-- **Multiple Auth Providers**: Anonymous, Google, Apple, Facebook, Steam, Custom, Username/Password
+- **Multiple Authentication Providers**: Anonymous, Google, Apple, Facebook, Steam, Custom, Username/Password
 
 ## 🏗️ Architecture
 
 ```
 Authentication/
 ├── Domain/           # Business logic and interfaces
-│   └── IAuthService.cs
+│   └── IAuthenticationService.cs
 ├── Application/      # Use cases and application logic
-│   └── AuthUseCases.cs
+│   └── AuthenticationUseCases.cs
 └── Infrastructure/   # External service implementations
     ├── Core/         # Base infrastructure
     ├── PlayFab/      # PlayFab implementation
@@ -84,26 +84,26 @@ using 3kmyung.Authentication.Application;
 using 3kmyung.Authentication.Infrastructure;
 using 3kmyung.Authentication.Domain;
 
-public class AuthManager : MonoBehaviour
+public class AuthenticationManager : MonoBehaviour
 {
-    private AuthUseCases _authUseCases;
+    private AuthenticationUseCases _authenticationUseCases;
     
     private void Start()
     {
         // For PlayFab
-        var playFabService = new PlayFabAuthService();
-        _authUseCases = new AuthUseCases(playFabService);
+        var playFabService = new PlayFabAuthenticationService();
+        _authenticationUseCases = new AuthenticationUseCases(playFabService);
         
         // Or for UGS
-        // var ugsService = new UgsAuthService();
-        // _authUseCases = new AuthUseCases(ugsService);
+        // var ugsService = new UgsAuthenticationService();
+        // _authenticationUseCases = new AuthenticationUseCases(ugsService);
     }
     
     public async void SignInAnonymously()
     {
         try
         {
-            var playerId = await _authUseCases.SignInAnonymouslyAsync();
+            var playerId = await _authenticationUseCases.SignInAnonymouslyAsync();
             Debug.Log($"Sign in successful: {playerId}");
         }
         catch (Exception ex)
@@ -121,8 +121,8 @@ public async void SignInWithGoogle(string googleToken)
 {
     try
     {
-        var playerId = await _authUseCases.SignInWithProviderAsync(
-            AuthProvider.Google, 
+        var playerId = await _authenticationUseCases.SignInWithProviderAsync(
+            AuthenticationProvider.Google, 
             googleToken
         );
         Debug.Log($"Google sign in successful: {playerId}");
@@ -142,7 +142,7 @@ public async void RegisterUser(string username, string password)
 {
     try
     {
-        await _authUseCases.RegisterWithUsernamePasswordAsync(username, password);
+        await _authenticationUseCases.RegisterWithUsernamePasswordAsync(username, password);
         Debug.Log("User registration successful");
     }
     catch (Exception ex)
@@ -156,7 +156,7 @@ public async void SignInWithUsernamePassword(string username, string password)
 {
     try
     {
-        var playerId = await _authUseCases.SignInWithUsernamePasswordAsync(username, password);
+        var playerId = await _authenticationUseCases.SignInWithUsernamePasswordAsync(username, password);
         Debug.Log($"Username/Password sign in successful: {playerId}");
     }
     catch (Exception ex)
@@ -174,7 +174,7 @@ public async void LinkGoogleAccount(string googleToken)
 {
     try
     {
-        await _authUseCases.LinkProviderAsync(AuthProvider.Google, googleToken);
+        await _authenticationUseCases.LinkProviderAsync(AuthenticationProvider.Google, googleToken);
         Debug.Log("Google account linked successfully");
     }
     catch (Exception ex)
@@ -188,7 +188,7 @@ public async void UnlinkGoogleAccount()
 {
     try
     {
-        await _authUseCases.UnlinkProviderAsync(AuthProvider.Google);
+        await _authenticationUseCases.UnlinkProviderAsync(AuthenticationProvider.Google);
         Debug.Log("Google account unlinked successfully");
     }
     catch (Exception ex)
@@ -210,7 +210,7 @@ public async void SignInWithCancellation()
     
     try
     {
-        var playerId = await _authUseCases.SignInAnonymouslyAsync(
+        var playerId = await _authenticationUseCases.SignInAnonymouslyAsync(
             cancellationTokenSource.Token
         );
         Debug.Log($"Sign in successful: {playerId}");
@@ -228,7 +228,7 @@ public async void SignInWithCancellation()
 
 ## 📚 API Reference
 
-### AuthUseCases
+### AuthenticationUseCases
 
 Main class providing all authentication use cases.
 
@@ -245,7 +245,7 @@ Main class providing all authentication use cases.
 | `GetPlayerIdAsync` | Get player ID | `Task<string>` |
 | `SignOutAsync` | Sign out | `Task` |
 
-### AuthProvider Enumeration
+### AuthenticationProvider Enumeration
 
 Supported authentication providers:
 
@@ -269,12 +269,12 @@ using 3kmyung.Authentication.Application;
 using 3kmyung.Authentication.Infrastructure;
 using 3kmyung.Authentication.Domain;
 
-public class CompleteAuthManager : MonoBehaviour
+public class CompleteAuthenticationManager : MonoBehaviour
 {
     [Header("Authentication Settings")]
     [SerializeField] private bool usePlayFab = true;
     
-    private AuthUseCases _authUseCases;
+    private AuthenticationUseCases _authenticationUseCases;
     private CancellationTokenSource _cancellationTokenSource;
     
     public event Action<string> OnSignInSuccess;
@@ -284,23 +284,23 @@ public class CompleteAuthManager : MonoBehaviour
     private void Awake()
     {
         _cancellationTokenSource = new CancellationTokenSource();
-        InitializeAuthService();
+        InitializeAuthenticationService();
     }
     
-    private void InitializeAuthService()
+    private void InitializeAuthenticationService()
     {
-        IAuthService authService = usePlayFab 
-            ? new PlayFabAuthService() 
-            : new UgsAuthService();
+        IAuthenticationService authenticationService = usePlayFab 
+            ? new PlayFabAuthenticationService() 
+            : new UgsAuthenticationService();
             
-        _authUseCases = new AuthUseCases(authService);
+        _authenticationUseCases = new AuthenticationUseCases(authenticationService);
     }
     
     public async void SignInAnonymously()
     {
         try
         {
-            var playerId = await _authUseCases.SignInAnonymouslyAsync(
+            var playerId = await _authenticationUseCases.SignInAnonymouslyAsync(
                 _cancellationTokenSource.Token
             );
             OnSignInSuccess?.Invoke(playerId);
@@ -319,8 +319,8 @@ public class CompleteAuthManager : MonoBehaviour
     {
         try
         {
-            var playerId = await _authUseCases.SignInWithProviderAsync(
-                AuthProvider.Google, 
+            var playerId = await _authenticationUseCases.SignInWithProviderAsync(
+                AuthenticationProvider.Google, 
                 googleToken, 
                 _cancellationTokenSource.Token
             );
@@ -340,7 +340,7 @@ public class CompleteAuthManager : MonoBehaviour
     {
         try
         {
-            await _authUseCases.RegisterWithUsernamePasswordAsync(
+            await _authenticationUseCases.RegisterWithUsernamePasswordAsync(
                 username, 
                 password, 
                 _cancellationTokenSource.Token
@@ -361,7 +361,7 @@ public class CompleteAuthManager : MonoBehaviour
     {
         try
         {
-            var playerId = await _authUseCases.SignInWithUsernamePasswordAsync(
+            var playerId = await _authenticationUseCases.SignInWithUsernamePasswordAsync(
                 username, 
                 password, 
                 _cancellationTokenSource.Token
@@ -382,7 +382,7 @@ public class CompleteAuthManager : MonoBehaviour
     {
         try
         {
-            await _authUseCases.SignOutAsync(_cancellationTokenSource.Token);
+            await _authenticationUseCases.SignOutAsync(_cancellationTokenSource.Token);
             OnSignOutSuccess?.Invoke();
         }
         catch (Exception ex)
@@ -395,7 +395,7 @@ public class CompleteAuthManager : MonoBehaviour
     {
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
-        _authUseCases?.Dispose();
+        _authenticationUseCases?.Dispose();
     }
 }
 ```
