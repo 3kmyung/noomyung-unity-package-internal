@@ -1,13 +1,10 @@
 namespace _3kmyung.Authentication.Domain
 {
-    public enum AuthenticationProvider
+    public enum SignInProviderType
     {
-        Anonymous,
         Google,
         Apple,
         Facebook,
         Steam,
-        Custom,
-        UsernamePassword
     }
 }
