@@ -8,9 +8,9 @@ namespace _3kmyung.Authentication.Domain
 
         public string PlayerId { get; }
 
-        public SignInRecord LastSignIn { get; }
+        public AuthenticationSession LastSignIn { get; }
 
-        public PlayerSession(Guid id, string playerId, SignInRecord lastSignIn)
+        public PlayerSession(Guid id, string playerId, AuthenticationSession lastSignIn)
         {
             Id = id;
             PlayerId = playerId ?? throw new ArgumentNullException(nameof(playerId));

@@ -17,7 +17,7 @@ namespace _3kmyung.Authentication.Infrastructure
         #region Fields
 
         private bool _isInitialized;
-        private readonly Dictionary<SignInProviderType, IProviderAuthenticationAdapter> _providerAdapters;
+        private readonly Dictionary<IdentityProviderType, IProviderAuthenticationAdapter> _providerAdapters;
 
         #endregion
 
@@ -25,11 +25,11 @@ namespace _3kmyung.Authentication.Infrastructure
 
         public UGSAuthenticationAdaptor()
         {
-            _providerAdapters = new Dictionary<SignInProviderType, IProviderAuthenticationAdapter>
+            _providerAdapters = new Dictionary<IdentityProviderType, IProviderAuthenticationAdapter>
             {
-                { SignInProviderType.Google, new UGSGoogleAuthenticationAdapter() },
-                { SignInProviderType.Apple, new UGSAppleAuthenticationAdapter() },
-                { SignInProviderType.Facebook, new UGSFacebookAuthenticationAdapter() }
+                { IdentityProviderType.Google, new UGSGoogleAuthenticationAdapter() },
+                { IdentityProviderType.Apple, new UGSAppleAuthenticationAdapter() },
+                { IdentityProviderType.Facebook, new UGSFacebookAuthenticationAdapter() }
             };
         }
 
@@ -51,14 +51,14 @@ namespace _3kmyung.Authentication.Infrastructure
             return session;
         }
 
-        public async Task<PlayerSession> SignInWithProviderAsync(SignInProviderType provider, string accessToken, CancellationToken cancellationToken = default)
+        public async Task<PlayerSession> SignInWithProviderAsync(IdentityProviderType provider, string accessToken, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
             try
             {
                 // CustomId Provider는 익명 로그인으로 처리
-                if (provider == SignInProviderType.Custom)
+                if (provider == IdentityProviderType.Custom)
                 {
                     await AuthenticationService.Instance.SignInAnonymouslyAsync().AsUniTask();
                 }
@@ -130,14 +130,14 @@ namespace _3kmyung.Authentication.Infrastructure
             }
         }
 
-        public async Task LinkProviderAsync(SignInProviderType provider, string accessToken, CancellationToken cancellationToken = default)
+        public async Task LinkProviderAsync(IdentityProviderType provider, string accessToken, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
             try
             {
                 // CustomId Provider는 지원하지 않음
-                if (provider == SignInProviderType.Custom)
+                if (provider == IdentityProviderType.Custom)
                 {
                     throw new NotSupportedException("UGS does not support linking with Custom Token. Use other supported providers.");
                 }
@@ -159,14 +159,14 @@ namespace _3kmyung.Authentication.Infrastructure
             }
         }
 
-        public async Task UnlinkProviderAsync(SignInProviderType provider, CancellationToken cancellationToken = default)
+        public async Task UnlinkProviderAsync(IdentityProviderType provider, CancellationToken cancellationToken = default)
         {
             await EnsureInitializedAsync(cancellationToken);
 
             try
             {
                 // CustomId Provider는 지원하지 않음
-                if (provider == SignInProviderType.Custom)
+                if (provider == IdentityProviderType.Custom)
                 {
                     throw new NotSupportedException("UGS does not support unlinking Custom Token. Use other supported providers.");
                 }

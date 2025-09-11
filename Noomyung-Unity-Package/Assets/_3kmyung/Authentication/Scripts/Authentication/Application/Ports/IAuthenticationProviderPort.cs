@@ -10,8 +10,8 @@ namespace _3kmyung.Authentication.Application
     /// </summary>
     public interface IProviderManagementPort : IDisposable
     {
-        Task LinkProviderAsync(SignInProviderType provider, string accessToken, CancellationToken cancellationToken = default);
+        Task LinkProviderAsync(IdentityProviderType provider, string accessToken, CancellationToken cancellationToken = default);
 
-        Task UnlinkProviderAsync(SignInProviderType provider, CancellationToken cancellationToken = default);
+        Task UnlinkProviderAsync(IdentityProviderType provider, CancellationToken cancellationToken = default);
     }
 }

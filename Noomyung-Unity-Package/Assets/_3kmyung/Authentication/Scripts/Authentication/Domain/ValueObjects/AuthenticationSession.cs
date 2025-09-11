@@ -2,15 +2,15 @@ using System;
 
 namespace _3kmyung.Authentication.Domain
 {
-    public sealed record SignInRecord
+    public sealed record AuthenticationSession
     {
-        public SignInChannel Channel { get; }
+        public AuthenticationChannel Channel { get; }
 
         public DateTimeOffset SignedInAt { get; }
 
         public DateTimeOffset ExpiresAt { get; }
 
-        public SignInRecord(SignInChannel channel, DateTimeOffset signedInAt, DateTimeOffset expiresAt)
+        public AuthenticationSession(AuthenticationChannel channel, DateTimeOffset signedInAt, DateTimeOffset expiresAt)
         {
             Channel = channel ?? throw new ArgumentNullException(nameof(channel));
             SignedInAt = signedInAt != default ? signedInAt : throw new ArgumentException("Sign in time must be specified.", nameof(signedInAt));

@@ -8,7 +8,7 @@ namespace _3kmyung.Authentication.Application
     /// <summary>
     /// Provider 연결 Command
     /// </summary>
-    public sealed class LinkProviderUseCase : ICommand<(SignInProviderType provider, string accessToken)>
+    public sealed class LinkProviderUseCase : ICommand<(IdentityProviderType provider, string accessToken)>
     {
         private readonly IAuthenticationPort _authenticationService;
 
@@ -17,7 +17,7 @@ namespace _3kmyung.Authentication.Application
             _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
         }
 
-        public async Task ExecuteAsync((SignInProviderType provider, string accessToken) request, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync((IdentityProviderType provider, string accessToken) request, CancellationToken cancellationToken = default)
         {
             await _authenticationService.LinkProviderAsync(request.provider, request.accessToken, cancellationToken).ConfigureAwait(false);
         }

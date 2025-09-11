@@ -1,6 +1,6 @@
 namespace _3kmyung.Authentication.Domain
 {
-    public enum SignInProviderType
+    public enum IdentityProviderType
     {
         Google,
         Apple,

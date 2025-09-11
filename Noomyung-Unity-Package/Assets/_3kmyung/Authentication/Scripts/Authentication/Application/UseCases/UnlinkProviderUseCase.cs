@@ -8,7 +8,7 @@ namespace _3kmyung.Authentication.Application
     /// <summary>
     /// Provider 연결 해제 Command
     /// </summary>
-    public sealed class UnlinkProviderUseCase : ICommand<SignInProviderType>
+    public sealed class UnlinkProviderUseCase : ICommand<IdentityProviderType>
     {
         private readonly IAuthenticationPort _authenticationService;
 
@@ -17,7 +17,7 @@ namespace _3kmyung.Authentication.Application
             _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
         }
 
-        public async Task ExecuteAsync(SignInProviderType request, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(IdentityProviderType request, CancellationToken cancellationToken = default)
         {
             await _authenticationService.UnlinkProviderAsync(request, cancellationToken).ConfigureAwait(false);
         }

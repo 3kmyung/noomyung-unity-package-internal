@@ -5,13 +5,13 @@ namespace _3kmyung.Authentication.Application.DataTransferObjects
 {
     public sealed record SignInRequest
     {
-        public SignInChannel Channel { get; }
+        public AuthenticationChannel Channel { get; }
         public string? Username { get; }
         public string? Password { get; }
-        public SignInProviderType? ProviderType { get; }
+        public IdentityProviderType? ProviderType { get; }
         public string? AccessToken { get; }
 
-        public SignInRequest(SignInChannel channel, string? username = null, string? password = null, SignInProviderType? providerType = null, string? accessToken = null)
+        public SignInRequest(AuthenticationChannel channel, string? username = null, string? password = null, IdentityProviderType? providerType = null, string? accessToken = null)
         {
             Channel = channel ?? throw new ArgumentNullException(nameof(channel));
             Username = username;
