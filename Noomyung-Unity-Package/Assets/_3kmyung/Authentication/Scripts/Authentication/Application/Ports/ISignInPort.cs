@@ -1,9 +1,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using _3kmyung.Authentication.Domain;
 
-namespace _3kmyung.Authentication.Domain
+namespace _3kmyung.Authentication.Application
 {
+    /// <summary>
+    /// Defines the contract for user sign-in operations.
+    /// </summary>
     public interface ISignInPort : IDisposable
     {
         Task<PlayerSession> SignInAnonymouslyAsync(CancellationToken cancellationToken = default);
@@ -11,7 +15,5 @@ namespace _3kmyung.Authentication.Domain
         Task<PlayerSession> SignInWithProviderAsync(SignInProviderType provider, string accessToken, CancellationToken cancellationToken = default);
 
         Task<PlayerSession> SignInWithUsernameAndPasswordAsync(string username, string password, CancellationToken cancellationToken = default);
-
-        Task InitializeAnonymousSessionAsync(CancellationToken cancellationToken = default);
     }
 }
