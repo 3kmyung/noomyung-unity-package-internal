@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 using Noomyung.UI.Domain.Enums;
-using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -33,9 +33,21 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
             return new Dictionary<string, object>
             {
                 { "PropertyName", propertyName },
-                { "From", new ColorValue(fromColor.r, fromColor.g, fromColor.b, fromColor.a) },
-                { "To", new ColorValue(toColor.r, toColor.g, toColor.b, toColor.a) }
+                { "From", Color.FromArgb((int)(fromColor.a * 255), (int)(fromColor.r * 255), (int)(fromColor.g * 255), (int)(fromColor.b * 255)) },
+                { "To", Color.FromArgb((int)(toColor.a * 255), (int)(toColor.r * 255), (int)(toColor.g * 255), (int)(toColor.b * 255)) }
             };
+        }
+
+        /// <summary>
+        /// 새로운 Effect 구조에 맞는 데이터를 생성합니다.
+        /// </summary>
+        public MaterialColorEffectData CreateEffectData()
+        {
+            return new MaterialColorEffectData(
+                propertyName,
+                Color.FromArgb((int)(fromColor.a * 255), (int)(fromColor.r * 255), (int)(fromColor.g * 255), (int)(fromColor.b * 255)),
+                Color.FromArgb((int)(toColor.a * 255), (int)(toColor.r * 255), (int)(toColor.g * 255), (int)(toColor.b * 255))
+            );
         }
 
         /// <inheritdoc />

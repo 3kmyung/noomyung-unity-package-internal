@@ -20,12 +20,15 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 
         public async UniTask ExecuteAsync(IUIElementHandle target, Effect effect, bool reverse, CancellationToken cancellationToken = default)
         {
-            var amplitude = effect.GetFloat("Amplitude", 10f);
-            var frequency = effect.GetFloat("Frequency", 10f);
-            var useDurationOverride = effect.GetBool("UseDurationOverride", false);
-            var durationOverride = effect.GetFloat("DurationOverride", 0.5f);
+            if (!effect.TryGetData<ShakeEffectData>(out var shakeData))
+            {
+                Debug.LogError($"ShakeEffect: Invalid effect data type. Expected ShakeEffectData, got {effect.Data?.GetType().Name}");
+                return;
+            }
 
-            var duration = useDurationOverride ? durationOverride : effect.Timing.Duration;
+            var amplitude = shakeData.Strength.X; // X축을 amplitude로 사용
+            var frequency = shakeData.Frequency;
+            var duration = effect.Timing.Duration;
 
             target.StoreOriginalPosition();
 

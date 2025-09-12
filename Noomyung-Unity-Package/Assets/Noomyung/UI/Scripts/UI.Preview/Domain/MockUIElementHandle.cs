@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 using Noomyung.UI.Application.Ports;
 
@@ -9,9 +10,9 @@ namespace Noomyung.UI.Tests.Domain.Mocks
     /// </summary>
     public class MockUIElementHandle : IUIElementHandle
     {
-        private readonly List<ColorValue> _graphicColors = new();
+        private readonly List<Color> _graphicColors = new();
         private readonly Dictionary<string, float> _materialFloats = new();
-        private readonly Dictionary<string, ColorValue> _materialColors = new();
+        private readonly Dictionary<string, Color> _materialColors = new();
         private Vector3 _originalPosition;
         private bool _originalPositionStored;
 
@@ -42,26 +43,26 @@ namespace Noomyung.UI.Tests.Domain.Mocks
         /// 그래픽 색상을 초기화합니다.
         /// </summary>
         /// <param name="colors">색상 배열</param>
-        public void InitializeGraphicColors(params ColorValue[] colors)
+        public void InitializeGraphicColors(params Color[] colors)
         {
             _graphicColors.Clear();
             _graphicColors.AddRange(colors);
         }
 
         /// <inheritdoc />
-        public IReadOnlyList<ColorValue> GetGraphicColors()
+        public IReadOnlyList<Color> GetGraphicColors()
         {
             return _graphicColors.AsReadOnly();
         }
 
         /// <inheritdoc />
-        public void SetGraphicColor(int index, ColorValue color)
+        public void SetGraphicColor(int index, Color color)
         {
             SetGraphicColorCallCount++;
 
             while (_graphicColors.Count <= index)
             {
-                _graphicColors.Add(ColorValue.White);
+                _graphicColors.Add(Color.White);
             }
 
             if (index >= 0 && index < _graphicColors.Count)
@@ -71,7 +72,7 @@ namespace Noomyung.UI.Tests.Domain.Mocks
         }
 
         /// <inheritdoc />
-        public void SetAllGraphicColors(ColorValue color)
+        public void SetAllGraphicColors(Color color)
         {
             SetAllGraphicColorsCallCount++;
 
@@ -95,13 +96,13 @@ namespace Noomyung.UI.Tests.Domain.Mocks
         }
 
         /// <inheritdoc />
-        public ColorValue GetMaterialColor(string propertyName)
+        public Color GetMaterialColor(string propertyName)
         {
-            return _materialColors.TryGetValue(propertyName, out var color) ? color : ColorValue.White;
+            return _materialColors.TryGetValue(propertyName, out var color) ? color : Color.White;
         }
 
         /// <inheritdoc />
-        public void SetMaterialColor(string propertyName, ColorValue color)
+        public void SetMaterialColor(string propertyName, Color color)
         {
             SetMaterialColorCallCount++;
             _materialColors[propertyName] = color;

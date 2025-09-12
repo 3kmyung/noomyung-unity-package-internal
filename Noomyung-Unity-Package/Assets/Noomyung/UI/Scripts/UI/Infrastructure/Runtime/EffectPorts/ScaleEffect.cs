@@ -21,9 +21,15 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 
         public async UniTask ExecuteAsync(IUIElementHandle target, Effect effect, bool reverse, CancellationToken cancellationToken = default)
         {
-            var from = effect.GetVector3("From", Vector3.Zero);
-            var to = effect.GetVector3("To", Vector3.One);
-            var axisMask = (AxisMask)System.Enum.Parse(typeof(AxisMask), effect.GetString("AxisMask", "XYZ"));
+            if (!effect.TryGetData<ScaleEffectData>(out var scaleData))
+            {
+                Debug.LogError($"ScaleEffect: Invalid effect data type. Expected ScaleEffectData, got {effect.Data?.GetType().Name}");
+                return;
+            }
+
+            var from = scaleData.From;
+            var to = scaleData.To;
+            var axisMask = (AxisMask)System.Enum.Parse(typeof(AxisMask), scaleData.AxisMask);
 
             if (reverse) (from, to) = (to, from);
 

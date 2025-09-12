@@ -37,5 +37,17 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
                 { "AxisMask", axisMask }
             };
         }
+
+        /// <summary>
+        /// 새로운 Effect 구조에 맞는 데이터를 생성합니다.
+        /// </summary>
+        public ScaleEffectData CreateEffectData()
+        {
+            return new ScaleEffectData(
+                new Vector3(fromScale.x, fromScale.y, fromScale.z),
+                new Vector3(toScale.x, toScale.y, toScale.z),
+                axisMask.ToString()
+            );
+        }
     }
 }

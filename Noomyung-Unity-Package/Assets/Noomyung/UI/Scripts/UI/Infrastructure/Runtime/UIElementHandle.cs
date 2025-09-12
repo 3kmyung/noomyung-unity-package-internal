@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Drawing;
 using UnityEngine;
 using UnityEngine.UI;
 using Noomyung.UI.Application.Ports;
@@ -85,13 +86,13 @@ namespace Noomyung.UI.Infrastructure.Runtime
         }
 
         /// <inheritdoc />
-        public IReadOnlyList<ColorValue> GetGraphicColors()
+        public IReadOnlyList<Color> GetGraphicColors()
         {
-            return _graphics?.Select(g => ConvertToDomainColor(g.color)).ToList() ?? new List<ColorValue>();
+            return _graphics?.Select(g => ConvertToSystemColor(g.color)).ToList() ?? new List<Color>();
         }
 
         /// <inheritdoc />
-        public void SetGraphicColor(int index, ColorValue color)
+        public void SetGraphicColor(int index, Color color)
         {
             if (_graphics != null && index >= 0 && index < _graphics.Length)
             {
@@ -100,7 +101,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
         }
 
         /// <inheritdoc />
-        public void SetAllGraphicColors(ColorValue color)
+        public void SetAllGraphicColors(Color color)
         {
             if (_graphics == null) return;
 
@@ -130,14 +131,14 @@ namespace Noomyung.UI.Infrastructure.Runtime
         }
 
         /// <inheritdoc />
-        public ColorValue GetMaterialColor(string propertyName)
+        public Color GetMaterialColor(string propertyName)
         {
             var color = _materials?.FirstOrDefault()?.GetColor(propertyName) ?? Color.white;
-            return ConvertToDomainColor(color);
+            return ConvertToSystemColor(color);
         }
 
         /// <inheritdoc />
-        public void SetMaterialColor(string propertyName, ColorValue color)
+        public void SetMaterialColor(string propertyName, Color color)
         {
             if (_materials == null) return;
 
@@ -165,14 +166,14 @@ namespace Noomyung.UI.Infrastructure.Runtime
             }
         }
 
-        private static ColorValue ConvertToDomainColor(Color unityColor)
+        private static Color ConvertToSystemColor(Color unityColor)
         {
-            return new ColorValue(unityColor.r, unityColor.g, unityColor.b, unityColor.a);
+            return Color.FromArgb((int)(unityColor.a * 255), (int)(unityColor.r * 255), (int)(unityColor.g * 255), (int)(unityColor.b * 255));
         }
 
-        private static Color ConvertToUnityColor(ColorValue domainColor)
+        private static Color ConvertToUnityColor(Color systemColor)
         {
-            return new Color(domainColor.R, domainColor.G, domainColor.B, domainColor.A);
+            return new Color(systemColor.R / 255f, systemColor.G / 255f, systemColor.B / 255f, systemColor.A / 255f);
         }
     }
 }

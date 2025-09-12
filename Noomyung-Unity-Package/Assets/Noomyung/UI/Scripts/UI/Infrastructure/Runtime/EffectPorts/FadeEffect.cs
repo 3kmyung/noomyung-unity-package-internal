@@ -20,8 +20,14 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 
         public async UniTask ExecuteAsync(IUIElementHandle target, Effect effect, bool reverse, CancellationToken cancellationToken = default)
         {
-            var from = effect.GetFloat("From", 0f);
-            var to = effect.GetFloat("To", 1f);
+            if (!effect.TryGetData<FadeEffectData>(out var fadeData))
+            {
+                Debug.LogError($"FadeEffect: Invalid effect data type. Expected FadeEffectData, got {effect.Data?.GetType().Name}");
+                return;
+            }
+
+            var from = fadeData.From;
+            var to = fadeData.To;
 
             if (reverse) (from, to) = (to, from);
 

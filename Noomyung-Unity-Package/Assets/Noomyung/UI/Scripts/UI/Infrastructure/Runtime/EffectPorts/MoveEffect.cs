@@ -20,9 +20,15 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 
         public async UniTask ExecuteAsync(IUIElementHandle target, Effect effect, bool reverse, CancellationToken cancellationToken = default)
         {
-            var from = effect.GetVector3("From", Vector3.Zero);
-            var to = effect.GetVector3("To", Vector3.Zero);
-            var space = effect.GetString("Space", "Anchored");
+            if (!effect.TryGetData<MoveEffectData>(out var moveData))
+            {
+                Debug.LogError($"MoveEffect: Invalid effect data type. Expected MoveEffectData, got {effect.Data?.GetType().Name}");
+                return;
+            }
+
+            var from = moveData.From;
+            var to = moveData.To;
+            var space = moveData.Space;
 
             if (reverse) (from, to) = (to, from);
 

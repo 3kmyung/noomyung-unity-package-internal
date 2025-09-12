@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 using Noomyung.UI.Domain.Enums;
 
@@ -7,6 +7,7 @@ namespace Noomyung.UI.Domain.ValueObjects
 {
     /// <summary>
     /// 개별 효과를 나타내는 불변 값 객체입니다.
+    /// 타입 안전한 접근을 위해 제네릭을 활용합니다.
     /// </summary>
     public readonly struct Effect : IEquatable<Effect>
     {
@@ -19,95 +20,66 @@ namespace Noomyung.UI.Domain.ValueObjects
         /// <summary>이징 정보</summary>
         public EffectEasing Easing { get; }
 
-        /// <summary>효과별 매개변수들</summary>
-        public IReadOnlyDictionary<string, object> Payload { get; }
+        /// <summary>효과별 특화된 데이터</summary>
+        public IEffectData Data { get; }
 
         public Effect(
             EffectType type,
             EffectTiming timing,
             EffectEasing easing,
-            IReadOnlyDictionary<string, object> payload = null)
+            IEffectData data)
         {
             Type = type;
             Timing = timing;
             Easing = easing;
-            Payload = payload ?? new Dictionary<string, object>();
+            Data = data ?? throw new ArgumentNullException(nameof(data));
         }
 
-        /// <summary>지정된 키의 float 값을 가져옵니다.</summary>
-        public float GetFloat(string key, float defaultValue = 0f)
+        /// <summary>
+        /// 타입 안전한 방식으로 효과 데이터를 가져옵니다.
+        /// </summary>
+        /// <typeparam name="T">효과 데이터 타입</typeparam>
+        /// <returns>타입이 일치하면 데이터를 반환, 그렇지 않으면 기본값</returns>
+        public T GetData<T>() where T : struct, IEffectData
         {
-            if (Payload.TryGetValue(key, out var value))
+            if (Data is T data)
+                return data;
+
+            return default(T);
+        }
+
+        /// <summary>
+        /// 타입 안전한 방식으로 효과 데이터를 가져옵니다.
+        /// </summary>
+        /// <typeparam name="T">효과 데이터 타입</typeparam>
+        /// <param name="data">반환될 데이터</param>
+        /// <returns>타입이 일치하면 true, 그렇지 않으면 false</returns>
+        public bool TryGetData<T>(out T data) where T : struct, IEffectData
+        {
+            if (Data is T typedData)
             {
-                return value switch
-                {
-                    float f => f,
-                    double d => (float)d,
-                    int i => i,
-                    _ => defaultValue
-                };
+                data = typedData;
+                return true;
             }
-            return defaultValue;
-        }
 
-        /// <summary>지정된 키의 bool 값을 가져옵니다.</summary>
-        public bool GetBool(string key, bool defaultValue = false)
-        {
-            return Payload.TryGetValue(key, out var value) && value is bool b ? b : defaultValue;
-        }
-
-        /// <summary>지정된 키의 string 값을 가져옵니다.</summary>
-        public string GetString(string key, string defaultValue = "")
-        {
-            return Payload.TryGetValue(key, out var value) && value is string s ? s : defaultValue;
-        }
-
-        /// <summary>지정된 키의 Vector3 값을 가져옵니다.</summary>
-        public Vector3 GetVector3(string key, Vector3 defaultValue = default)
-        {
-            return Payload.TryGetValue(key, out var value) && value is Vector3 v ? v : defaultValue;
-        }
-
-        /// <summary>지정된 키의 ColorValue 값을 가져옵니다.</summary>
-        public ColorValue GetColor(string key, ColorValue defaultValue = default)
-        {
-            return Payload.TryGetValue(key, out var value) && value is ColorValue c ? c : defaultValue;
+            data = default(T);
+            return false;
         }
 
         public bool Equals(Effect other) =>
             Type == other.Type &&
             Timing.Equals(other.Timing) &&
             Easing.Equals(other.Easing) &&
-            PayloadEquals(Payload, other.Payload);
-
-        private static bool PayloadEquals(IReadOnlyDictionary<string, object> left, IReadOnlyDictionary<string, object> right)
-        {
-            if (left.Count != right.Count) return false;
-
-            foreach (var kvp in left)
-            {
-                if (!right.TryGetValue(kvp.Key, out var rightValue) || !Equals(kvp.Value, rightValue))
-                    return false;
-            }
-            return true;
-        }
+            Equals(Data, other.Data);
 
         public override bool Equals(object obj) => obj is Effect other && Equals(other);
 
-        public override int GetHashCode()
-        {
-            var hash = HashCode.Combine(Type, Timing, Easing);
-            foreach (var kvp in Payload)
-            {
-                hash = HashCode.Combine(hash, kvp.Key, kvp.Value);
-            }
-            return hash;
-        }
+        public override int GetHashCode() => HashCode.Combine(Type, Timing, Easing, Data);
 
         public static bool operator ==(Effect left, Effect right) => left.Equals(right);
 
         public static bool operator !=(Effect left, Effect right) => !left.Equals(right);
 
-        public override string ToString() => $"Type: {Type}, Timing: {Timing}, Easing: {Easing}, PayloadCount: {Payload.Count}";
+        public override string ToString() => $"Type: {Type}, Timing: {Timing}, Easing: {Easing}, Data: {Data?.GetType().Name ?? "null"}";
     }
 }

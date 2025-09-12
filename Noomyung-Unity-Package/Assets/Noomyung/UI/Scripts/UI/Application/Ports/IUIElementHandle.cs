@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 
 namespace Noomyung.UI.Application.Ports
@@ -25,13 +26,13 @@ namespace Noomyung.UI.Application.Ports
         bool IsActive { get; set; }
 
         /// <summary>그래픽 컴포넌트들의 색상 목록을 가져옵니다.</summary>
-        IReadOnlyList<ColorValue> GetGraphicColors();
+        IReadOnlyList<Color> GetGraphicColors();
 
         /// <summary>지정된 인덱스의 그래픽 색상을 설정합니다.</summary>
-        void SetGraphicColor(int index, ColorValue color);
+        void SetGraphicColor(int index, Color color);
 
         /// <summary>모든 그래픽 컴포넌트의 색상을 설정합니다.</summary>
-        void SetAllGraphicColors(ColorValue color);
+        void SetAllGraphicColors(Color color);
 
         /// <summary>머티리얼의 float 속성 값을 가져옵니다.</summary>
         float GetMaterialFloat(string propertyName);
@@ -40,10 +41,10 @@ namespace Noomyung.UI.Application.Ports
         void SetMaterialFloat(string propertyName, float value);
 
         /// <summary>머티리얼의 색상 속성 값을 가져옵니다.</summary>
-        ColorValue GetMaterialColor(string propertyName);
+        Color GetMaterialColor(string propertyName);
 
         /// <summary>머티리얼의 색상 속성 값을 설정합니다.</summary>
-        void SetMaterialColor(string propertyName, ColorValue color);
+        void SetMaterialColor(string propertyName, Color color);
 
         /// <summary>원래 위치를 저장합니다 (흔들림 효과용).</summary>
         void StoreOriginalPosition();

@@ -49,5 +49,17 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
                 { "Space", space.ToString() }
             };
         }
+
+        /// <summary>
+        /// 새로운 Effect 구조에 맞는 데이터를 생성합니다.
+        /// </summary>
+        public MoveEffectData CreateEffectData()
+        {
+            return new MoveEffectData(
+                new Vector3(fromPosition.x, fromPosition.y, fromPosition.z),
+                new Vector3(toPosition.x, toPosition.y, toPosition.z),
+                space.ToString()
+            );
+        }
     }
 }
