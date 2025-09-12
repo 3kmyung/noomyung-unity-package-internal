@@ -10,9 +10,7 @@ using Noomyung.UI.Domain.Interfaces;
 using Noomyung.UI.Infrastructure.ScriptableObjects;
 using Noomyung.UI.Infrastructure.Async;
 
-#if UNITASK_PRESENT
 using Cysharp.Threading.Tasks;
-#endif
 
 namespace Noomyung.UI.Infrastructure.Runtime
 {
@@ -22,17 +20,26 @@ namespace Noomyung.UI.Infrastructure.Runtime
     [RequireComponent(typeof(RectTransform))]
     public class UIView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
+        #region Serialized Field
+
         [Header("Transition")]
         [SerializeField] private UITransitionAsset transitionAsset;
 
         [Header("Dependincies")]
         [SerializeField] private RectTransform targetRectTransform;
-        [SerializeField] private CanvasGroup canvasGroup;
-        [SerializeField] private Graphic[] graphics;
+        [SerializeField] private CanvasGroup targetCanvasGroup;
+        [SerializeField] private Graphic[] targetGraphics;
 
+        #endregion
+
+        #region Field
+
+        private IUITransitionDefinition _transitionDefinition;
         private IUITransitionService _transitionService;
         private IUIElementHandle _elementHandle;
         private CancellationTokenSource _cancellationTokenSource;
+
+        #endregion
 
         #region Public API
 
@@ -42,15 +49,11 @@ namespace Noomyung.UI.Infrastructure.Runtime
         /// <summary>
         /// Changes the transition asset at runtime.
         /// </summary>
-        /// <param name="newAsset">New transition asset to use</param>
-        public void SetTransitionAsset(IUITransitionDefinition newAsset)
+        /// <param name="definition">New transition asset to use</param>
+        public void SetTransitionDefinition(IUITransitionDefinition definition)
         {
-            if (newAsset is UITransitionAsset scriptableAsset)
-            {
-                transitionAsset = scriptableAsset;
-                // 서비스를 다시 초기화하여 새로운 에셋을 사용하도록 함
-                InitializeServices();
-            }
+            _transitionDefinition = definition;
+            InitializeServices();
         }
 
         /// <summary>
@@ -109,11 +112,18 @@ namespace Noomyung.UI.Infrastructure.Runtime
 
         #endregion
 
-        #region Event Methods
+        #region Event Method
 
         private void Awake()
         {
             InitializeComponents();
+
+            // transitionAsset이 설정되어 있으면 _transitionDefinition으로 초기화
+            if (transitionAsset != null)
+            {
+                _transitionDefinition = transitionAsset;
+            }
+
             InitializeServices();
         }
 
@@ -137,11 +147,11 @@ namespace Noomyung.UI.Infrastructure.Runtime
             if (targetRectTransform == null)
                 targetRectTransform = GetComponent<RectTransform>();
 
-            if (canvasGroup == null)
-                canvasGroup = GetComponent<CanvasGroup>();
+            if (targetCanvasGroup == null)
+                targetCanvasGroup = GetComponent<CanvasGroup>();
 
-            if (graphics == null || graphics.Length == 0)
-                graphics = GetComponentsInChildren<Graphic>();
+            if (targetGraphics == null || targetGraphics.Length == 0)
+                targetGraphics = GetComponentsInChildren<Graphic>();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -166,27 +176,27 @@ namespace Noomyung.UI.Infrastructure.Runtime
 
         #endregion
 
-        #region Initialization
+        #region Private and Protected Method
 
         private void InitializeComponents()
         {
             if (targetRectTransform == null)
                 targetRectTransform = GetComponent<RectTransform>();
 
-            if (graphics == null || graphics.Length == 0)
-                graphics = GetComponentsInChildren<Graphic>();
+            if (targetGraphics == null || targetGraphics.Length == 0)
+                targetGraphics = GetComponentsInChildren<Graphic>();
         }
 
         private void InitializeServices()
         {
             var asyncBridge = AsyncBridgeFactory.Create();
-            var ignoreTimeScale = transitionAsset?.IgnoreTimeScale ?? true;
+            var ignoreTimeScale = _transitionDefinition?.IgnoreTimeScale ?? true;
             var stepExecutor = new UnityEffectStepExecutor(asyncBridge, ignoreTimeScale);
             var transitionRunner = new UnityTransitionRunner(stepExecutor);
-            _elementHandle = new UIElementHandle(targetRectTransform, canvasGroup, graphics);
-            
-            // 직접 전환 에셋을 사용하는 간단한 서비스 생성
-            _transitionService = new DirectUITransitionService(transitionRunner, transitionAsset);
+            _elementHandle = new UIElementHandle(targetRectTransform, targetCanvasGroup, targetGraphics);
+
+            // 직접 전환 정의를 사용하는 간단한 서비스 생성
+            _transitionService = new DirectUITransitionService(transitionRunner, _transitionDefinition);
         }
 
         private void EnsureInitialized()
@@ -196,10 +206,6 @@ namespace Noomyung.UI.Infrastructure.Runtime
                 InitializeServices();
             }
         }
-
-        #endregion
-
-        #region Private and Protected Methods
 
         private CancellationToken GetCancellationToken()
         {
@@ -229,15 +235,13 @@ namespace Noomyung.UI.Infrastructure.Runtime
 
         #endregion
 
-#if UNITASK_PRESENT
         /// <summary>
-        /// Gets a cancellation token that is cancelled when the component is destroyed. (UniTask only)
+        /// Gets a cancellation token that is cancelled when the component is destroyed.
         /// </summary>
         /// <returns>Cancellation token that cancels on component destruction</returns>
         public CancellationToken GetCancellationTokenOnDestroy()
         {
-            return this.GetCancellationTokenOnDestroy();
+            return GetCancellationToken();
         }
-#endif
     }
 }

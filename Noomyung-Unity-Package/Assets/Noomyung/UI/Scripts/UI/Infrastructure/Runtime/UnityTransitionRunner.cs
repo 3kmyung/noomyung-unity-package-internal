@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Noomyung.UI.Domain.Interfaces;
 using Noomyung.UI.Domain.ValueObjects;
 
@@ -23,7 +24,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
         }
 
         /// <inheritdoc />
-        public async Task RunAsync(IUIElementHandle target, TransitionDefinition transition, CancellationToken cancellationToken = default)
+        public async UniTask RunAsync(IUIElementHandle target, TransitionDefinition transition, CancellationToken cancellationToken = default)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));

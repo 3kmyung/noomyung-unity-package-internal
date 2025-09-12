@@ -1,15 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 using Noomyung.UI.Domain.Interfaces;
 using Noomyung.UI.Domain.ValueObjects;
 using Noomyung.UI.Domain.Enums;
 using Noomyung.UI.Infrastructure.Async;
-
-#if UNITASK_PRESENT
-using Cysharp.Threading.Tasks;
-#endif
+using Noomyung.UI.Infrastructure.Runtime.EffectPorts;
 
 namespace Noomyung.UI.Infrastructure.Runtime
 {
@@ -20,6 +19,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
     {
         private readonly IAsyncBridge _asyncBridge;
         private readonly bool _ignoreTimeScale;
+        private readonly Dictionary<EffectType, IEffectPort> _effectPorts;
 
         /// <summary>
         /// UnityEffectStepExecutor의 새 인스턴스를 초기화합니다.
@@ -30,10 +30,11 @@ namespace Noomyung.UI.Infrastructure.Runtime
         {
             _asyncBridge = asyncBridge ?? AsyncBridgeFactory.Create();
             _ignoreTimeScale = ignoreTimeScale;
+            _effectPorts = InitializeEffectPorts();
         }
 
         /// <inheritdoc />
-        public async Task ExecuteAsync(IUIElementHandle target, EffectStep step, CancellationToken cancellationToken = default)
+        public async UniTask ExecuteAsync(IUIElementHandle target, EffectStep step, CancellationToken cancellationToken = default)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
@@ -62,67 +63,27 @@ namespace Noomyung.UI.Infrastructure.Runtime
             }
         }
 
-        private async Task ExecuteEffectAsync(IUIElementHandle target, EffectStep step, CancellationToken cancellationToken)
+        private async UniTask ExecuteEffectAsync(IUIElementHandle target, EffectStep step, CancellationToken cancellationToken)
         {
-            switch (step.Type)
+            if (_effectPorts.TryGetValue(step.Type, out var effectPort))
             {
-                case EffectType.Fade:
-                    await ExecuteFadeAsync(target, step, false, cancellationToken);
-                    break;
-                case EffectType.Scale:
-                    await ExecuteScaleAsync(target, step, false, cancellationToken);
-                    break;
-                case EffectType.Move:
-                    await ExecuteMoveAsync(target, step, false, cancellationToken);
-                    break;
-                case EffectType.Color:
-                    await ExecuteColorAsync(target, step, false, cancellationToken);
-                    break;
-                case EffectType.MaterialFloat:
-                    await ExecuteMaterialFloatAsync(target, step, false, cancellationToken);
-                    break;
-                case EffectType.MaterialColor:
-                    await ExecuteMaterialColorAsync(target, step, false, cancellationToken);
-                    break;
-                case EffectType.Shake:
-                    await ExecuteShakeAsync(target, step, cancellationToken);
-                    break;
+                await effectPort.ExecuteAsync(target, step, false, cancellationToken);
             }
         }
 
-        private async Task ExecuteReverseEffectAsync(IUIElementHandle target, EffectStep step, CancellationToken cancellationToken)
+        private async UniTask ExecuteReverseEffectAsync(IUIElementHandle target, EffectStep step, CancellationToken cancellationToken)
         {
-            switch (step.Type)
+            if (_effectPorts.TryGetValue(step.Type, out var effectPort))
             {
-                case EffectType.Fade:
-                    await ExecuteFadeAsync(target, step, true, cancellationToken);
-                    break;
-                case EffectType.Scale:
-                    await ExecuteScaleAsync(target, step, true, cancellationToken);
-                    break;
-                case EffectType.Move:
-                    await ExecuteMoveAsync(target, step, true, cancellationToken);
-                    break;
-                case EffectType.Color:
-                    await ExecuteColorAsync(target, step, true, cancellationToken);
-                    break;
-                case EffectType.MaterialFloat:
-                    await ExecuteMaterialFloatAsync(target, step, true, cancellationToken);
-                    break;
-                case EffectType.MaterialColor:
-                    await ExecuteMaterialColorAsync(target, step, true, cancellationToken);
-                    break;
-                case EffectType.Shake:
-                    await ExecuteShakeAsync(target, step, cancellationToken);
-                    break;
+                await effectPort.ExecuteAsync(target, step, true, cancellationToken);
             }
         }
 
-        private async Task ExecuteFadeAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
+        private async UniTask ExecuteFadeAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
         {
             var from = step.GetFloat("From", 0f);
             var to = step.GetFloat("To", 1f);
-            
+
             if (reverse) (from, to) = (to, from);
 
             await AnimateAsync(step.Timing.Duration, cancellationToken, progress =>
@@ -132,12 +93,12 @@ namespace Noomyung.UI.Infrastructure.Runtime
             });
         }
 
-        private async Task ExecuteScaleAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
+        private async UniTask ExecuteScaleAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
         {
             var from = step.GetVector3("From", Vector3Value.Zero);
             var to = step.GetVector3("To", Vector3Value.One);
             var axisMask = (AxisMask)Enum.Parse(typeof(AxisMask), step.GetString("AxisMask", "XYZ"));
-            
+
             if (reverse) (from, to) = (to, from);
 
             var currentScale = target.LocalScale;
@@ -146,30 +107,30 @@ namespace Noomyung.UI.Infrastructure.Runtime
             {
                 var easedProgress = ApplyEasing(progress, step.Easing);
                 var lerpedScale = LerpVector3(from, to, easedProgress);
-                
+
                 // 축 마스크 적용
                 var finalScale = currentScale;
                 if (axisMask.HasFlag(AxisMask.X)) finalScale = new Vector3Value(lerpedScale.X, finalScale.Y, finalScale.Z);
                 if (axisMask.HasFlag(AxisMask.Y)) finalScale = new Vector3Value(finalScale.X, lerpedScale.Y, finalScale.Z);
                 if (axisMask.HasFlag(AxisMask.Z)) finalScale = new Vector3Value(finalScale.X, finalScale.Y, lerpedScale.Z);
-                
+
                 target.LocalScale = finalScale;
             });
         }
 
-        private async Task ExecuteMoveAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
+        private async UniTask ExecuteMoveAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
         {
             var from = step.GetVector3("From", Vector3Value.Zero);
             var to = step.GetVector3("To", Vector3Value.Zero);
             var space = step.GetString("Space", "Anchored");
-            
+
             if (reverse) (from, to) = (to, from);
 
             await AnimateAsync(step.Timing.Duration, cancellationToken, progress =>
             {
                 var easedProgress = ApplyEasing(progress, step.Easing);
                 var lerpedPosition = LerpVector3(from, to, easedProgress);
-                
+
                 if (space == "Local")
                     target.LocalPosition = lerpedPosition;
                 else
@@ -177,19 +138,19 @@ namespace Noomyung.UI.Infrastructure.Runtime
             });
         }
 
-        private async Task ExecuteColorAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
+        private async UniTask ExecuteColorAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
         {
             var from = step.GetColor("From", ColorValue.White);
             var to = step.GetColor("To", ColorValue.White);
             var targetMode = step.GetString("TargetMode", "Graphic");
-            
+
             if (reverse) (from, to) = (to, from);
 
             await AnimateAsync(step.Timing.Duration, cancellationToken, progress =>
             {
                 var easedProgress = ApplyEasing(progress, step.Easing);
                 var lerpedColor = LerpColor(from, to, easedProgress);
-                
+
                 if (targetMode == "AllGraphicsInChildren")
                     target.SetAllGraphicColors(lerpedColor);
                 else
@@ -197,12 +158,12 @@ namespace Noomyung.UI.Infrastructure.Runtime
             });
         }
 
-        private async Task ExecuteMaterialFloatAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
+        private async UniTask ExecuteMaterialFloatAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
         {
             var propertyName = step.GetString("PropertyName", "_Alpha");
             var from = step.GetFloat("From", 0f);
             var to = step.GetFloat("To", 1f);
-            
+
             if (reverse) (from, to) = (to, from);
 
             await AnimateAsync(step.Timing.Duration, cancellationToken, progress =>
@@ -213,12 +174,12 @@ namespace Noomyung.UI.Infrastructure.Runtime
             });
         }
 
-        private async Task ExecuteMaterialColorAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
+        private async UniTask ExecuteMaterialColorAsync(IUIElementHandle target, EffectStep step, bool reverse, CancellationToken cancellationToken)
         {
             var propertyName = step.GetString("PropertyName", "_Color");
             var from = step.GetColor("From", ColorValue.White);
             var to = step.GetColor("To", ColorValue.White);
-            
+
             if (reverse) (from, to) = (to, from);
 
             await AnimateAsync(step.Timing.Duration, cancellationToken, progress =>
@@ -229,17 +190,17 @@ namespace Noomyung.UI.Infrastructure.Runtime
             });
         }
 
-        private async Task ExecuteShakeAsync(IUIElementHandle target, EffectStep step, CancellationToken cancellationToken)
+        private async UniTask ExecuteShakeAsync(IUIElementHandle target, EffectStep step, CancellationToken cancellationToken)
         {
             var amplitude = step.GetFloat("Amplitude", 10f);
             var frequency = step.GetFloat("Frequency", 10f);
             var useDurationOverride = step.GetBool("UseDurationOverride", false);
             var durationOverride = step.GetFloat("DurationOverride", 0.5f);
-            
+
             var duration = useDurationOverride ? durationOverride : step.Timing.Duration;
-            
+
             target.StoreOriginalPosition();
-            
+
             try
             {
                 await AnimateAsync(duration, cancellationToken, progress =>
@@ -247,7 +208,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
                     var time = progress * duration;
                     var offsetX = Mathf.Sin(time * frequency * 2f * Mathf.PI) * amplitude * (1f - progress);
                     var offsetY = Mathf.Cos(time * frequency * 2f * Mathf.PI) * amplitude * (1f - progress);
-                    
+
                     var originalPos = target.AnchoredPosition;
                     target.AnchoredPosition = new Vector3Value(
                         originalPos.X + offsetX,
@@ -261,64 +222,34 @@ namespace Noomyung.UI.Infrastructure.Runtime
             }
         }
 
-        private async Task AnimateAsync(float duration, CancellationToken cancellationToken, Action<float> onUpdate)
+        private async UniTask AnimateAsync(float duration, CancellationToken cancellationToken, Action<float> onUpdate)
         {
-#if UNITASK_PRESENT
-            var uniTask = AnimateUniTask(duration, cancellationToken, onUpdate);
-            await _asyncBridge.ToTask(uniTask);
-#else
-            await AnimateStandardTask(duration, cancellationToken, onUpdate);
-#endif
+            await AnimateUniTask(duration, cancellationToken, onUpdate);
         }
 
-#if UNITASK_PRESENT
         private async UniTask AnimateUniTask(float duration, CancellationToken cancellationToken, Action<float> onUpdate)
         {
             float elapsed = 0f;
-            
+
             while (elapsed < duration && !cancellationToken.IsCancellationRequested)
             {
                 var progress = Mathf.Clamp01(elapsed / duration);
                 onUpdate?.Invoke(progress);
-                
+
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 elapsed += _ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
             }
-            
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                onUpdate?.Invoke(1f);
-            }
-        }
-#endif
 
-        private async Task AnimateStandardTask(float duration, CancellationToken cancellationToken, Action<float> onUpdate)
-        {
-            float elapsed = 0f;
-            
-            while (elapsed < duration && !cancellationToken.IsCancellationRequested)
-            {
-                var progress = Mathf.Clamp01(elapsed / duration);
-                onUpdate?.Invoke(progress);
-                
-                await Task.Yield();
-                elapsed += _ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
-            }
-            
             if (!cancellationToken.IsCancellationRequested)
             {
                 onUpdate?.Invoke(1f);
             }
         }
 
-        private async Task DelayAsync(float seconds, CancellationToken cancellationToken)
+
+        private async UniTask DelayAsync(float seconds, CancellationToken cancellationToken)
         {
-#if UNITASK_PRESENT
-            var uniTask = UniTask.Delay(TimeSpan.FromSeconds(seconds), _ignoreTimeScale, cancellationToken: cancellationToken);
-            await _asyncBridge.ToTask(uniTask);
-#else
-            await Task.Delay(TimeSpan.FromSeconds(seconds), cancellationToken);
-#endif
+            await UniTask.Delay(TimeSpan.FromSeconds(seconds), _ignoreTimeScale, cancellationToken: cancellationToken);
         }
 
         private float ApplyEasing(float t, EffectEasing easing)
@@ -349,6 +280,20 @@ namespace Noomyung.UI.Infrastructure.Runtime
                 Mathf.Lerp(a.G, b.G, t),
                 Mathf.Lerp(a.B, b.B, t),
                 Mathf.Lerp(a.A, b.A, t));
+        }
+
+        private Dictionary<EffectType, IEffectPort> InitializeEffectPorts()
+        {
+            return new Dictionary<EffectType, IEffectPort>
+            {
+                { EffectType.Fade, new FadeEffectPort(_asyncBridge, _ignoreTimeScale) },
+                { EffectType.Scale, new ScaleEffectPort(_asyncBridge, _ignoreTimeScale) },
+                { EffectType.Move, new MoveEffectPort(_asyncBridge, _ignoreTimeScale) },
+                { EffectType.Color, new ColorEffectPort(_asyncBridge, _ignoreTimeScale) },
+                { EffectType.MaterialFloat, new MaterialFloatEffectPort(_asyncBridge, _ignoreTimeScale) },
+                { EffectType.MaterialColor, new MaterialColorEffectPort(_asyncBridge, _ignoreTimeScale) },
+                { EffectType.Shake, new ShakeEffectPort(_asyncBridge, _ignoreTimeScale) }
+            };
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Noomyung.UI.Domain.ValueObjects
     {
         /// <summary>전환을 트리거하는 이벤트</summary>
         public EffectTrigger Trigger { get; }
-        
+
         /// <summary>실행할 효과 단계들</summary>
         public IReadOnlyList<EffectStep> Steps { get; }
 
@@ -33,7 +33,7 @@ namespace Noomyung.UI.Domain.ValueObjects
             Steps.SequenceEqual(other.Steps);
 
         public override bool Equals(object obj) => obj is TransitionDefinition other && Equals(other);
-        
+
         public override int GetHashCode()
         {
             var hash = HashCode.Combine(Trigger);

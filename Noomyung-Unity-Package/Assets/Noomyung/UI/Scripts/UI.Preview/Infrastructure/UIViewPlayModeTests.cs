@@ -38,7 +38,7 @@ namespace Noomyung.UI.Tests.PlayMode
             _testTransitionAsset = CreateTestTransitionAsset();
             
             // UIView 설정
-            _uiView.SetTransitionAsset(_testTransitionAsset);
+            _uiView.SetTransitionDefinition(_testTransitionAsset);
         }
 
         [TearDown]

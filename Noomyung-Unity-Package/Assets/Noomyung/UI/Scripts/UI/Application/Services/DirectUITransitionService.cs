@@ -21,7 +21,7 @@ namespace Noomyung.UI.Application.Services
         /// <param name="transitionRunner">전환 실행기</param>
         /// <param name="transitionAsset">사용할 전환 에셋</param>
         public DirectUITransitionService(
-            IUITransitionRunner transitionRunner, 
+            IUITransitionRunner transitionRunner,
             IUITransitionDefinition transitionAsset)
         {
             _transitionRunner = transitionRunner ?? throw new ArgumentNullException(nameof(transitionRunner));
