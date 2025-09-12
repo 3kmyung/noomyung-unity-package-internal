@@ -22,10 +22,10 @@ namespace Noomyung.UI.Infrastructure.Runtime
     [RequireComponent(typeof(RectTransform))]
     public class UIView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
-        [Header("전환 설정")]
+        [Header("Transition")]
         [SerializeField] private UITransitionAsset transitionAsset;
 
-        [Header("컴포넌트 참조")]
+        [Header("Dependincies")]
         [SerializeField] private RectTransform targetRectTransform;
         [SerializeField] private CanvasGroup canvasGroup;
         [SerializeField] private Graphic[] graphics;
@@ -34,8 +34,24 @@ namespace Noomyung.UI.Infrastructure.Runtime
         private IUIElementHandle _elementHandle;
         private CancellationTokenSource _cancellationTokenSource;
 
+        #region Public API
+
         /// <summary>ScriptableObject containing transition effect definitions.</summary>
         public IUITransitionDefinition TransitionAsset => transitionAsset;
+
+        /// <summary>
+        /// Changes the transition asset at runtime.
+        /// </summary>
+        /// <param name="newAsset">New transition asset to use</param>
+        public void SetTransitionAsset(IUITransitionDefinition newAsset)
+        {
+            if (newAsset is UITransitionAsset scriptableAsset)
+            {
+                transitionAsset = scriptableAsset;
+                // 서비스를 다시 초기화하여 새로운 에셋을 사용하도록 함
+                InitializeServices();
+            }
+        }
 
         /// <summary>
         /// Executes the show transition for this UI element.
@@ -91,31 +107,9 @@ namespace Noomyung.UI.Infrastructure.Runtime
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        #region Unity Event Handlers
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            if (enabled && gameObject.activeInHierarchy)
-            {
-                _ = ExecuteTransitionSafely(() => HoverEnterAsync(GetCancellationToken()));
-            }
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            if (enabled && gameObject.activeInHierarchy)
-            {
-                _ = ExecuteTransitionSafely(() => HoverExitAsync(GetCancellationToken()));
-            }
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-        }
-
         #endregion
 
-        #region Unity Lifecycle
+        #region Event Methods
 
         private void Awake()
         {
@@ -148,6 +142,26 @@ namespace Noomyung.UI.Infrastructure.Runtime
 
             if (graphics == null || graphics.Length == 0)
                 graphics = GetComponentsInChildren<Graphic>();
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (enabled && gameObject.activeInHierarchy)
+            {
+                _ = ExecuteTransitionSafely(() => HoverEnterAsync(GetCancellationToken()));
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (enabled && gameObject.activeInHierarchy)
+            {
+                _ = ExecuteTransitionSafely(() => HoverExitAsync(GetCancellationToken()));
+            }
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
         }
 
         #endregion
@@ -185,7 +199,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
 
         #endregion
 
-        #region Helper Methods
+        #region Private and Protected Methods
 
         private CancellationToken GetCancellationToken()
         {
@@ -210,24 +224,6 @@ namespace Noomyung.UI.Infrastructure.Runtime
             catch (Exception ex)
             {
                 Debug.LogError($"Transition execution failed on {name}: {ex.Message}", this);
-            }
-        }
-
-        #endregion
-
-        #region Public API
-
-        /// <summary>
-        /// Changes the transition asset at runtime.
-        /// </summary>
-        /// <param name="newAsset">New transition asset to use</param>
-        public void SetTransitionAsset(IUITransitionDefinition newAsset)
-        {
-            if (newAsset is UITransitionAsset scriptableAsset)
-            {
-                transitionAsset = scriptableAsset;
-                // 서비스를 다시 초기화하여 새로운 에셋을 사용하도록 함
-                InitializeServices();
             }
         }
 
