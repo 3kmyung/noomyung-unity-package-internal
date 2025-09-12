@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Numerics;
 using Noomyung.UI.Domain.Enums;
-using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -32,8 +32,8 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
         {
             return new Dictionary<string, object>
             {
-                { "From", new Vector3Value(fromScale.x, fromScale.y, fromScale.z) },
-                { "To", new Vector3Value(toScale.x, toScale.y, toScale.z) },
+                { "From", new Vector3(fromScale.x, fromScale.y, fromScale.z) },
+                { "To", new Vector3(toScale.x, toScale.y, toScale.z) },
                 { "AxisMask", axisMask }
             };
         }

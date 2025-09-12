@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using UnityEngine;
 using UnityEngine.UI;
 using Noomyung.UI.Application.Ports;
-using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Infrastructure.Runtime
 {
@@ -16,7 +16,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
         private readonly CanvasGroup _canvasGroup;
         private readonly Graphic[] _graphics;
         private readonly Material[] _materials;
-        private Vector3Value _originalPosition;
+        private Vector3 _originalPosition;
         private bool _originalPositionStored;
 
         /// <summary>
@@ -45,34 +45,34 @@ namespace Noomyung.UI.Infrastructure.Runtime
         }
 
         /// <inheritdoc />
-        public Vector3Value AnchoredPosition
+        public Vector3 AnchoredPosition
         {
             get
             {
                 var pos = _rectTransform.anchoredPosition3D;
-                return new Vector3Value(pos.x, pos.y, pos.z);
+                return new Vector3(pos.x, pos.y, pos.z);
             }
             set => _rectTransform.anchoredPosition3D = new Vector3(value.X, value.Y, value.Z);
         }
 
         /// <inheritdoc />
-        public Vector3Value LocalScale
+        public Vector3 LocalScale
         {
             get
             {
                 var scale = _rectTransform.localScale;
-                return new Vector3Value(scale.x, scale.y, scale.z);
+                return new Vector3(scale.x, scale.y, scale.z);
             }
             set => _rectTransform.localScale = new Vector3(value.X, value.Y, value.Z);
         }
 
         /// <inheritdoc />
-        public Vector3Value LocalPosition
+        public Vector3 LocalPosition
         {
             get
             {
                 var pos = _rectTransform.localPosition;
-                return new Vector3Value(pos.x, pos.y, pos.z);
+                return new Vector3(pos.x, pos.y, pos.z);
             }
             set => _rectTransform.localPosition = new Vector3(value.X, value.Y, value.Z);
         }

@@ -1,8 +1,8 @@
 using System.Threading;
+using System.Numerics;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Noomyung.UI.Application.Ports;
-using Noomyung.UI.Domain.ValueObjects;
 using Noomyung.UI.Domain.Enums;
 
 namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
@@ -21,8 +21,8 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 
         public async UniTask ExecuteAsync(IUIElementHandle target, Effect effect, bool reverse, CancellationToken cancellationToken = default)
         {
-            var from = effect.GetVector3("From", Vector3Value.Zero);
-            var to = effect.GetVector3("To", Vector3Value.One);
+            var from = effect.GetVector3("From", Vector3.Zero);
+            var to = effect.GetVector3("To", Vector3.One);
             var axisMask = (AxisMask)System.Enum.Parse(typeof(AxisMask), effect.GetString("AxisMask", "XYZ"));
 
             if (reverse) (from, to) = (to, from);
@@ -36,9 +36,9 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 
                 // 축 마스크 적용
                 var finalScale = currentScale;
-                if (axisMask.HasFlag(AxisMask.X)) finalScale = new Vector3Value(lerpedScale.X, finalScale.Y, finalScale.Z);
-                if (axisMask.HasFlag(AxisMask.Y)) finalScale = new Vector3Value(finalScale.X, lerpedScale.Y, finalScale.Z);
-                if (axisMask.HasFlag(AxisMask.Z)) finalScale = new Vector3Value(finalScale.X, finalScale.Y, lerpedScale.Z);
+                if (axisMask.HasFlag(AxisMask.X)) finalScale = new Vector3(lerpedScale.X, finalScale.Y, finalScale.Z);
+                if (axisMask.HasFlag(AxisMask.Y)) finalScale = new Vector3(finalScale.X, lerpedScale.Y, finalScale.Z);
+                if (axisMask.HasFlag(AxisMask.Z)) finalScale = new Vector3(finalScale.X, finalScale.Y, lerpedScale.Z);
 
                 target.LocalScale = finalScale;
             });
@@ -76,9 +76,9 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
             };
         }
 
-        private Vector3Value LerpVector3(Vector3Value a, Vector3Value b, float t)
+        private Vector3 LerpVector3(Vector3 a, Vector3 b, float t)
         {
-            return new Vector3Value(
+            return new Vector3(
                 Mathf.Lerp(a.X, b.X, t),
                 Mathf.Lerp(a.Y, b.Y, t),
                 Mathf.Lerp(a.Z, b.Z, t));

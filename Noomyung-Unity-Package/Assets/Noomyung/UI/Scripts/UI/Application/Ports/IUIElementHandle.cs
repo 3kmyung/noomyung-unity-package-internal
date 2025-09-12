@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Noomyung.UI.Domain.ValueObjects;
+using System.Numerics;
 
 namespace Noomyung.UI.Application.Ports
 {
@@ -13,13 +13,13 @@ namespace Noomyung.UI.Application.Ports
         float Alpha { get; set; }
 
         /// <summary>앵커 기준 위치</summary>
-        Vector3Value AnchoredPosition { get; set; }
+        Vector3 AnchoredPosition { get; set; }
 
         /// <summary>로컬 스케일</summary>
-        Vector3Value LocalScale { get; set; }
+        Vector3 LocalScale { get; set; }
 
         /// <summary>로컬 위치</summary>
-        Vector3Value LocalPosition { get; set; }
+        Vector3 LocalPosition { get; set; }
 
         /// <summary>UI 요소가 활성화되어 있는지 여부</summary>
         bool IsActive { get; set; }

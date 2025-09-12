@@ -1,8 +1,8 @@
 using System.Threading;
+using System.Numerics;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Noomyung.UI.Application.Ports;
-using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 {
@@ -20,8 +20,8 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 
         public async UniTask ExecuteAsync(IUIElementHandle target, Effect effect, bool reverse, CancellationToken cancellationToken = default)
         {
-            var from = effect.GetVector3("From", Vector3Value.Zero);
-            var to = effect.GetVector3("To", Vector3Value.Zero);
+            var from = effect.GetVector3("From", Vector3.Zero);
+            var to = effect.GetVector3("To", Vector3.Zero);
             var space = effect.GetString("Space", "Anchored");
 
             if (reverse) (from, to) = (to, from);
@@ -70,9 +70,9 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
             };
         }
 
-        private Vector3Value LerpVector3(Vector3Value a, Vector3Value b, float t)
+        private Vector3 LerpVector3(Vector3 a, Vector3 b, float t)
         {
-            return new Vector3Value(
+            return new Vector3(
                 Mathf.Lerp(a.X, b.X, t),
                 Mathf.Lerp(a.Y, b.Y, t),
                 Mathf.Lerp(a.Z, b.Z, t));

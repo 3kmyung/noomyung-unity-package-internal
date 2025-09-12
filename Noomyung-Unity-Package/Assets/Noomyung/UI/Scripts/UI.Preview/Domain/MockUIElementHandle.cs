@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Numerics;
 using Noomyung.UI.Application.Ports;
-using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Tests.Domain.Mocks
 {
@@ -12,20 +12,20 @@ namespace Noomyung.UI.Tests.Domain.Mocks
         private readonly List<ColorValue> _graphicColors = new();
         private readonly Dictionary<string, float> _materialFloats = new();
         private readonly Dictionary<string, ColorValue> _materialColors = new();
-        private Vector3Value _originalPosition;
+        private Vector3 _originalPosition;
         private bool _originalPositionStored;
 
         /// <inheritdoc />
         public float Alpha { get; set; } = 1f;
 
         /// <inheritdoc />
-        public Vector3Value AnchoredPosition { get; set; } = Vector3Value.Zero;
+        public Vector3 AnchoredPosition { get; set; } = Vector3.Zero;
 
         /// <inheritdoc />
-        public Vector3Value LocalScale { get; set; } = Vector3Value.One;
+        public Vector3 LocalScale { get; set; } = Vector3.One;
 
         /// <inheritdoc />
-        public Vector3Value LocalPosition { get; set; } = Vector3Value.Zero;
+        public Vector3 LocalPosition { get; set; } = Vector3.Zero;
 
         /// <inheritdoc />
         public bool IsActive { get; set; } = true;

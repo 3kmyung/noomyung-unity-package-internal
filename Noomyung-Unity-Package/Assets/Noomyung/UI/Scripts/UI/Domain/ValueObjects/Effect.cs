@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Noomyung.UI.Domain.Enums;
 
 namespace Noomyung.UI.Domain.ValueObjects
@@ -61,10 +62,10 @@ namespace Noomyung.UI.Domain.ValueObjects
             return Payload.TryGetValue(key, out var value) && value is string s ? s : defaultValue;
         }
 
-        /// <summary>지정된 키의 Vector3Value 값을 가져옵니다.</summary>
-        public Vector3Value GetVector3(string key, Vector3Value defaultValue = default)
+        /// <summary>지정된 키의 Vector3 값을 가져옵니다.</summary>
+        public Vector3 GetVector3(string key, Vector3 defaultValue = default)
         {
-            return Payload.TryGetValue(key, out var value) && value is Vector3Value v ? v : defaultValue;
+            return Payload.TryGetValue(key, out var value) && value is Vector3 v ? v : defaultValue;
         }
 
         /// <summary>지정된 키의 ColorValue 값을 가져옵니다.</summary>

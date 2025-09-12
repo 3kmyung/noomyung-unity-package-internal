@@ -1,8 +1,8 @@
 using System.Threading;
+using System.Numerics;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Noomyung.UI.Application.Ports;
-using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
 {
@@ -38,7 +38,7 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
                     var offsetY = Mathf.Cos(time * frequency * 2f * Mathf.PI) * amplitude * (1f - progress);
 
                     var originalPos = target.AnchoredPosition;
-                    target.AnchoredPosition = new Vector3Value(
+                    target.AnchoredPosition = new Vector3(
                         originalPos.X + offsetX,
                         originalPos.Y + offsetY,
                         originalPos.Z);

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Numerics;
 using Noomyung.UI.Domain.Enums;
-using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -44,8 +44,8 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
         {
             return new Dictionary<string, object>
             {
-                { "From", new Vector3Value(fromPosition.x, fromPosition.y, fromPosition.z) },
-                { "To", new Vector3Value(toPosition.x, toPosition.y, toPosition.z) },
+                { "From", new Vector3(fromPosition.x, fromPosition.y, fromPosition.z) },
+                { "To", new Vector3(toPosition.x, toPosition.y, toPosition.z) },
                 { "Space", space.ToString() }
             };
         }
