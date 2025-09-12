@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using Noomyung.UI.Domain.Interfaces;
+using Noomyung.UI.Application.Ports;
 using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Infrastructure.Runtime
@@ -103,7 +103,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
         public void SetAllGraphicColors(ColorValue color)
         {
             if (_graphics == null) return;
-            
+
             var unityColor = ConvertToUnityColor(color);
             foreach (var graphic in _graphics)
             {
@@ -121,7 +121,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
         public void SetMaterialFloat(string propertyName, float value)
         {
             if (_materials == null) return;
-            
+
             foreach (var material in _materials)
             {
                 if (material != null && material.HasProperty(propertyName))
@@ -140,7 +140,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
         public void SetMaterialColor(string propertyName, ColorValue color)
         {
             if (_materials == null) return;
-            
+
             var unityColor = ConvertToUnityColor(color);
             foreach (var material in _materials)
             {

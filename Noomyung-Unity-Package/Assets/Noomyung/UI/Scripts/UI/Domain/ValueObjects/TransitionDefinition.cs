@@ -13,33 +13,33 @@ namespace Noomyung.UI.Domain.ValueObjects
         /// <summary>전환을 트리거하는 이벤트</summary>
         public EffectTrigger Trigger { get; }
 
-        /// <summary>실행할 효과 단계들</summary>
-        public IReadOnlyList<EffectStep> Steps { get; }
+        /// <summary>실행할 효과들</summary>
+        public IReadOnlyList<Effect> Effects { get; }
 
-        public TransitionDefinition(EffectTrigger trigger, IReadOnlyList<EffectStep> steps)
+        public TransitionDefinition(EffectTrigger trigger, IReadOnlyList<Effect> effects)
         {
             Trigger = trigger;
-            Steps = steps ?? Array.Empty<EffectStep>();
+            Effects = effects ?? Array.Empty<Effect>();
         }
 
-        public TransitionDefinition(EffectTrigger trigger, params EffectStep[] steps)
-            : this(trigger, steps?.ToList() ?? new List<EffectStep>()) { }
+        public TransitionDefinition(EffectTrigger trigger, params Effect[] effects)
+            : this(trigger, effects?.ToList() ?? new List<Effect>()) { }
 
         /// <summary>비어있는 전환 정의인지 확인합니다.</summary>
-        public bool IsEmpty => Steps.Count == 0;
+        public bool IsEmpty => Effects.Count == 0;
 
         public bool Equals(TransitionDefinition other) =>
             Trigger == other.Trigger &&
-            Steps.SequenceEqual(other.Steps);
+            Effects.SequenceEqual(other.Effects);
 
         public override bool Equals(object obj) => obj is TransitionDefinition other && Equals(other);
 
         public override int GetHashCode()
         {
             var hash = HashCode.Combine(Trigger);
-            foreach (var step in Steps)
+            foreach (var effect in Effects)
             {
-                hash = HashCode.Combine(hash, step);
+                hash = HashCode.Combine(hash, effect);
             }
             return hash;
         }
@@ -47,6 +47,6 @@ namespace Noomyung.UI.Domain.ValueObjects
         public static bool operator ==(TransitionDefinition left, TransitionDefinition right) => left.Equals(right);
         public static bool operator !=(TransitionDefinition left, TransitionDefinition right) => !left.Equals(right);
 
-        public override string ToString() => $"Trigger: {Trigger}, Steps: {Steps.Count}";
+        public override string ToString() => $"Trigger: {Trigger}, Effects: {Effects.Count}";
     }
 }

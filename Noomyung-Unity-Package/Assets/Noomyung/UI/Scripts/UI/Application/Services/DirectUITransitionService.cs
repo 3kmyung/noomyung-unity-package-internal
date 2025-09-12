@@ -1,9 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Noomyung.UI.Application.Interfaces;
+using Noomyung.UI.Application.Ports;
 using Noomyung.UI.Domain.Enums;
-using Noomyung.UI.Domain.Interfaces;
 
 namespace Noomyung.UI.Application.Services
 {

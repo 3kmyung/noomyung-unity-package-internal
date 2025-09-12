@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Noomyung.UI.Application.Interfaces;
+using Noomyung.UI.Application.Ports;
 using Noomyung.UI.Domain.ValueObjects;
 using Noomyung.UI.Infrastructure.ScriptableObjects;
-using Noomyung.UI.Domain.Interfaces;
 
 namespace Noomyung.UI.Infrastructure.Runtime
 {

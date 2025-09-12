@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using Noomyung.UI.Domain.Enums;
 using Noomyung.UI.Domain.ValueObjects;
-using Noomyung.UI.Domain.Interfaces;
+using Noomyung.UI.Application.Ports;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {

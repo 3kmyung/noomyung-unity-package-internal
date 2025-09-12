@@ -1,6 +1,6 @@
 using Noomyung.UI.Domain.ValueObjects;
 
-namespace Noomyung.UI.Application.Interfaces
+namespace Noomyung.UI.Application.Ports
 {
     /// <summary>
     /// UI 전환 설정을 관리하는 리포지토리 인터페이스입니다.

@@ -1,9 +1,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Noomyung.UI.Application.Interfaces;
+using Noomyung.UI.Application.Ports;
 using Noomyung.UI.Domain.Enums;
-using Noomyung.UI.Domain.Interfaces;
 
 namespace Noomyung.UI.Application.Services
 {
@@ -23,7 +22,7 @@ namespace Noomyung.UI.Application.Services
         /// <param name="transitionRepository">전환 리포지토리</param>
         /// <param name="transitionId">사용할 전환 설정 ID</param>
         public UITransitionService(
-            IUITransitionRunner transitionRunner, 
+            IUITransitionRunner transitionRunner,
             IUITransitionRepository transitionRepository,
             string transitionId)
         {

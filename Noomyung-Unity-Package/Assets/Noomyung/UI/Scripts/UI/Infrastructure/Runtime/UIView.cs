@@ -4,9 +4,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Noomyung.UI.Application.Interfaces;
+using Noomyung.UI.Application.Ports;
 using Noomyung.UI.Application.Services;
-using Noomyung.UI.Domain.Interfaces;
 using Noomyung.UI.Infrastructure.ScriptableObjects;
 using Noomyung.UI.Infrastructure.Async;
 
@@ -189,10 +188,9 @@ namespace Noomyung.UI.Infrastructure.Runtime
 
         private void InitializeServices()
         {
-            var asyncBridge = AsyncBridgeFactory.Create();
             var ignoreTimeScale = _transitionDefinition?.IgnoreTimeScale ?? true;
-            var stepExecutor = new UnityEffectStepExecutor(asyncBridge, ignoreTimeScale);
-            var transitionRunner = new UnityTransitionRunner(stepExecutor);
+            var effectExecutor = new EffectExecutor(ignoreTimeScale);
+            var transitionRunner = new TransitionRunner(effectExecutor);
             _elementHandle = new UIElementHandle(targetRectTransform, targetCanvasGroup, targetGraphics);
 
             // 직접 전환 정의를 사용하는 간단한 서비스 생성

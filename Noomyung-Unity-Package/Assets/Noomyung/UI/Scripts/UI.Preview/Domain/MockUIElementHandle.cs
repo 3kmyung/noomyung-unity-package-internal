@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Noomyung.UI.Domain.Interfaces;
+using Noomyung.UI.Application.Ports;
 using Noomyung.UI.Domain.ValueObjects;
 
 namespace Noomyung.UI.Tests.Domain.Mocks
@@ -58,12 +58,12 @@ namespace Noomyung.UI.Tests.Domain.Mocks
         public void SetGraphicColor(int index, ColorValue color)
         {
             SetGraphicColorCallCount++;
-            
+
             while (_graphicColors.Count <= index)
             {
                 _graphicColors.Add(ColorValue.White);
             }
-            
+
             if (index >= 0 && index < _graphicColors.Count)
             {
                 _graphicColors[index] = color;
@@ -74,7 +74,7 @@ namespace Noomyung.UI.Tests.Domain.Mocks
         public void SetAllGraphicColors(ColorValue color)
         {
             SetAllGraphicColorsCallCount++;
-            
+
             for (int i = 0; i < _graphicColors.Count; i++)
             {
                 _graphicColors[i] = color;
@@ -119,7 +119,7 @@ namespace Noomyung.UI.Tests.Domain.Mocks
         public void RestoreOriginalPosition()
         {
             RestoreOriginalPositionCallCount++;
-            
+
             if (_originalPositionStored)
             {
                 AnchoredPosition = _originalPosition;
