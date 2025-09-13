@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Numerics;
 using Noomyung.UI.Domain.Enums;
+using Noomyung.UI.Domain.ValueObjects;
+using Noomyung.UI.Domain.ValueObjects.Effects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -40,6 +43,23 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
                 { "UseDurationOverride", useDurationOverride },
                 { "DurationOverride", durationOverride }
             };
+        }
+
+        /// <summary>
+        /// 새로운 Effect 구조에 맞는 Effect를 생성합니다.
+        /// </summary>
+        public ShakeEffect CreateEffect()
+        {
+            var strength = new Vector3(amplitude, amplitude, 0);
+            var duration = useDurationOverride ? durationOverride : 1f;
+
+            return new ShakeEffect(
+                strength: strength,
+                timing: new EffectTiming(duration: duration, delay: 0f, repeat: 1),
+                easing: new EffectEasing(EasingType.Linear),
+                frequency: frequency,
+                vibrato: 10
+            );
         }
 
         /// <inheritdoc />

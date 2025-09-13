@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 using Noomyung.UI.Domain.Enums;
+using Noomyung.UI.Domain.ValueObjects;
+using Noomyung.UI.Domain.ValueObjects.Effects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -39,14 +41,16 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
         }
 
         /// <summary>
-        /// 새로운 Effect 구조에 맞는 데이터를 생성합니다.
+        /// 새로운 Effect 구조에 맞는 Effect를 생성합니다.
         /// </summary>
-        public MaterialColorEffectData CreateEffectData()
+        public MaterialColorEffect CreateEffect()
         {
-            return new MaterialColorEffectData(
-                propertyName,
-                Color.FromArgb((int)(fromColor.a * 255), (int)(fromColor.r * 255), (int)(fromColor.g * 255), (int)(fromColor.b * 255)),
-                Color.FromArgb((int)(toColor.a * 255), (int)(toColor.r * 255), (int)(toColor.g * 255), (int)(toColor.b * 255))
+            return new MaterialColorEffect(
+                propertyName: propertyName,
+                from: Color.FromArgb((int)(fromColor.a * 255), (int)(fromColor.r * 255), (int)(fromColor.g * 255), (int)(fromColor.b * 255)),
+                to: Color.FromArgb((int)(toColor.a * 255), (int)(toColor.r * 255), (int)(toColor.g * 255), (int)(toColor.b * 255)),
+                timing: new EffectTiming(duration: 1f, delay: 0f, repeat: 1),
+                easing: new EffectEasing(EasingType.EaseInOut)
             );
         }
 

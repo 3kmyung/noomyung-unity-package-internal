@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Numerics;
 using UnityEngine;
 using Noomyung.UI.Domain.ValueObjects;
+using Noomyung.UI.Domain.ValueObjects.Effects;
 using Noomyung.UI.Domain.Enums;
 
 namespace Noomyung.UI.Infrastructure.Runtime.Examples
@@ -17,111 +18,79 @@ namespace Noomyung.UI.Infrastructure.Runtime.Examples
         public void CreateTypedEffects()
         {
             // 1. Fade Effect 생성
-            var fadeData = new FadeEffectData(from: 0f, to: 1f);
-            var fadeEffect = new Effect(
-                type: EffectType.Fade,
+            var fadeEffect = new FadeEffect(
+                from: 0f,
+                to: 1f,
                 timing: new EffectTiming(duration: 1f, delay: 0f, repeat: 1),
-                easing: new EffectEasing(EasingType.EaseInOut),
-                data: fadeData
+                easing: new EffectEasing(EasingType.EaseInOut)
             );
 
             // 2. Scale Effect 생성
-            var scaleData = new ScaleEffectData(
+            var scaleEffect = new ScaleEffect(
                 from: Vector3.Zero,
                 to: Vector3.One,
-                axisMask: "XYZ"
-            );
-            var scaleEffect = new Effect(
-                type: EffectType.Scale,
                 timing: new EffectTiming(duration: 0.5f, delay: 0.2f, repeat: 1),
                 easing: new EffectEasing(EasingType.EaseOut),
-                data: scaleData
+                axisMask: "XYZ"
             );
 
             // 3. Move Effect 생성
-            var moveData = new MoveEffectData(
+            var moveEffect = new MoveEffect(
                 from: Vector3.Zero,
                 to: new Vector3(100, 50, 0),
-                space: "Anchored"
-            );
-            var moveEffect = new Effect(
-                type: EffectType.Move,
                 timing: new EffectTiming(duration: 2f, delay: 0f, repeat: 1),
                 easing: new EffectEasing(EasingType.EaseInOut),
-                data: moveData
+                space: "Anchored"
             );
 
             // 4. Color Effect 생성
-            var colorData = new ColorEffectData(
+            var colorEffect = new ColorEffect(
                 from: Color.White,
                 to: Color.Red,
-                targetMode: "Graphic"
-            );
-            var colorEffect = new Effect(
-                type: EffectType.Color,
                 timing: new EffectTiming(duration: 1f, delay: 0f, repeat: 1),
                 easing: new EffectEasing(EasingType.Linear),
-                data: colorData
+                targetMode: "Graphic"
             );
 
             // 5. Shake Effect 생성
-            var shakeData = new ShakeEffectData(
+            var shakeEffect = new ShakeEffect(
                 strength: new Vector3(10, 10, 0),
-                frequency: 15f,
-                vibrato: 10
-            );
-            var shakeEffect = new Effect(
-                type: EffectType.Shake,
                 timing: new EffectTiming(duration: 0.5f, delay: 0f, repeat: 1),
                 easing: new EffectEasing(EasingType.Linear),
-                data: shakeData
+                frequency: 15f,
+                vibrato: 10
             );
         }
 
         /// <summary>
         /// 타입 안전한 Effect 데이터 접근 예제
         /// </summary>
-        public void AccessEffectDataSafely(Effect effect)
+        public void AccessEffectDataSafely(IEffect effect)
         {
-            switch (effect.Type)
+            switch (effect)
             {
-                case EffectType.Fade:
-                    if (effect.TryGetData<FadeEffectData>(out var fadeData))
-                    {
-                        Debug.Log($"Fade from {fadeData.From} to {fadeData.To}");
-                    }
+                case FadeEffect fadeEffect:
+                    Debug.Log($"Fade from {fadeEffect.From} to {fadeEffect.To}");
                     break;
 
-                case EffectType.Scale:
-                    if (effect.TryGetData<ScaleEffectData>(out var scaleData))
-                    {
-                        Debug.Log($"Scale from {scaleData.From} to {scaleData.To} with mask {scaleData.AxisMask}");
-                    }
+                case ScaleEffect scaleEffect:
+                    Debug.Log($"Scale from {scaleEffect.From} to {scaleEffect.To} with mask {scaleEffect.AxisMask}");
                     break;
 
-                case EffectType.Move:
-                    if (effect.TryGetData<MoveEffectData>(out var moveData))
-                    {
-                        Debug.Log($"Move from {moveData.From} to {moveData.To} in {moveData.Space} space");
-                    }
+                case MoveEffect moveEffect:
+                    Debug.Log($"Move from {moveEffect.From} to {moveEffect.To} in {moveEffect.Space} space");
                     break;
 
-                case EffectType.Color:
-                    if (effect.TryGetData<ColorEffectData>(out var colorData))
-                    {
-                        Debug.Log($"Color from {colorData.From} to {colorData.To} for {colorData.TargetMode}");
-                    }
+                case ColorEffect colorEffect:
+                    Debug.Log($"Color from {colorEffect.From} to {colorEffect.To} for {colorEffect.TargetMode}");
                     break;
 
-                case EffectType.Shake:
-                    if (effect.TryGetData<ShakeEffectData>(out var shakeData))
-                    {
-                        Debug.Log($"Shake with strength {shakeData.Strength}, frequency {shakeData.Frequency}");
-                    }
+                case ShakeEffect shakeEffect:
+                    Debug.Log($"Shake with strength {shakeEffect.Strength}, frequency {shakeEffect.Frequency}");
                     break;
 
                 default:
-                    Debug.LogWarning($"Unsupported effect type: {effect.Type}");
+                    Debug.LogWarning($"Unsupported effect type: {effect.GetType().Name}");
                     break;
             }
         }
@@ -131,19 +100,11 @@ namespace Noomyung.UI.Infrastructure.Runtime.Examples
         /// </summary>
         public void CreateEffectFromScriptableObject()
         {
-            // ScriptableObject에서 EffectData 생성
+            // ScriptableObject에서 Effect 생성
             var moveAsset = ScriptableObject.CreateInstance<MoveEffectAsset>();
-            var moveData = moveAsset.CreateEffectData();
+            var moveEffect = moveAsset.CreateEffect();
 
-            // Effect 생성
-            var effect = new Effect(
-                type: EffectType.Move,
-                timing: new EffectTiming(duration: 1f, delay: 0f, repeat: 1),
-                easing: new EffectEasing(EasingType.EaseInOut),
-                data: moveData
-            );
-
-            Debug.Log($"Created effect from ScriptableObject: {effect}");
+            Debug.Log($"Created effect from ScriptableObject: {moveEffect}");
         }
 
         /// <summary>
@@ -152,29 +113,24 @@ namespace Noomyung.UI.Infrastructure.Runtime.Examples
         public void DemonstrateTypeSafety()
         {
             // 올바른 타입으로 접근
-            var fadeEffect = new Effect(
-                EffectType.Fade,
-                new EffectTiming(1f, 0f, 1),
-                new EffectEasing(EasingType.Linear),
-                new FadeEffectData(0f, 1f)
+            var fadeEffect = new FadeEffect(
+                from: 0f,
+                to: 1f,
+                timing: new EffectTiming(1f, 0f, 1),
+                easing: new EffectEasing(EasingType.Linear)
             );
 
-            // 타입 안전한 접근
-            var fadeData = fadeEffect.GetData<FadeEffectData>();
-            Debug.Log($"Fade data: {fadeData.From} -> {fadeData.To}");
+            // 타입 안전한 접근 - 직접 속성에 접근
+            Debug.Log($"Fade data: {fadeEffect.From} -> {fadeEffect.To}");
 
-            // 잘못된 타입으로 접근 시도 (기본값 반환)
-            var wrongData = fadeEffect.GetData<ScaleEffectData>();
-            Debug.Log($"Wrong data (should be default): {wrongData.From} -> {wrongData.To}");
-
-            // TryGetData로 안전한 접근
-            if (fadeEffect.TryGetData<FadeEffectData>(out var safeFadeData))
+            // 인터페이스 매칭을 통한 안전한 접근
+            if (fadeEffect is FadeEffect fade)
             {
-                Debug.Log($"Safe access successful: {safeFadeData.From} -> {safeFadeData.To}");
+                Debug.Log($"Safe access successful: {fade.From} -> {fade.To}");
             }
             else
             {
-                Debug.LogError("Failed to get FadeEffectData");
+                Debug.LogError("Failed to cast to FadeEffect");
             }
         }
     }

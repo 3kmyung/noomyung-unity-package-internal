@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Noomyung.UI.Domain.ValueObjects;
+using Cysharp.Threading.Tasks;
 
 namespace Noomyung.UI.Application.Ports
 {
@@ -16,6 +17,6 @@ namespace Noomyung.UI.Application.Ports
         /// <param name="effect">실행할 효과</param>
         /// <param name="cancellationToken">취소 토큰</param>
         /// <returns>완료 작업</returns>
-        Task ExecuteAsync(IUIElementHandle target, Effect effect, CancellationToken cancellationToken = default);
+        UniTask ExecuteAsync(IUIElementHandle target, IEffect effect, CancellationToken cancellationToken = default);
     }
 }

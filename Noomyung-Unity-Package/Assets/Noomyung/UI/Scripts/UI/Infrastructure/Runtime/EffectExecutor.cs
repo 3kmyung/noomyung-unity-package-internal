@@ -6,8 +6,8 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Noomyung.UI.Application.Ports;
 using Noomyung.UI.Domain.ValueObjects;
+using Noomyung.UI.Domain.ValueObjects.Effects;
 using Noomyung.UI.Domain.Enums;
-using Noomyung.UI.Infrastructure.Runtime.EffectPorts;
 
 namespace Noomyung.UI.Infrastructure.Runtime
 {
@@ -17,7 +17,6 @@ namespace Noomyung.UI.Infrastructure.Runtime
     public class EffectExecutor : IUIEffectExecutor
     {
         private readonly bool _ignoreTimeScale;
-        private readonly Dictionary<EffectType, IEffectPort> _effectPorts;
 
         /// <summary>
         /// EffectExecutor의 새 인스턴스를 초기화합니다.
@@ -26,14 +25,16 @@ namespace Noomyung.UI.Infrastructure.Runtime
         public EffectExecutor(bool ignoreTimeScale = true)
         {
             _ignoreTimeScale = ignoreTimeScale;
-            _effectPorts = InitializeEffectPorts();
         }
 
         /// <inheritdoc />
-        public async UniTask ExecuteAsync(IUIElementHandle target, Effect effect, CancellationToken cancellationToken = default)
+        public async UniTask ExecuteAsync(IUIElementHandle target, IEffect effect, CancellationToken cancellationToken = default)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
+
+            if (effect == null)
+                throw new ArgumentNullException(nameof(effect));
 
             // 지연 시간 처리
             if (effect.Timing.Delay > 0f)
@@ -42,7 +43,7 @@ namespace Noomyung.UI.Infrastructure.Runtime
             }
 
             // 기본 실행
-            await ExecuteEffectAsync(target, effect, cancellationToken);
+            await ExecuteEffectAsync(target, effect, false, cancellationToken);
 
             // 반복 처리
             for (int i = 0; i < effect.Timing.Loops && !cancellationToken.IsCancellationRequested; i++)
@@ -50,44 +51,28 @@ namespace Noomyung.UI.Infrastructure.Runtime
                 if (effect.Timing.LoopType == LoopType.Yoyo && i % 2 == 1)
                 {
                     // Yoyo 효과를 위해 역방향 실행
-                    await ExecuteReverseEffectAsync(target, effect, cancellationToken);
+                    await ExecuteEffectAsync(target, effect, true, cancellationToken);
                 }
                 else
                 {
-                    await ExecuteEffectAsync(target, effect, cancellationToken);
+                    await ExecuteEffectAsync(target, effect, false, cancellationToken);
                 }
             }
         }
 
-        private async UniTask ExecuteEffectAsync(IUIElementHandle target, Effect effect, CancellationToken cancellationToken)
+        private async UniTask ExecuteEffectAsync(IUIElementHandle target, IEffect effect, bool reverse, CancellationToken cancellationToken)
         {
-            if (_effectPorts.TryGetValue(effect.Type, out var effectPort))
-            {
-                await effectPort.ExecuteAsync(target, effect, false, cancellationToken);
-            }
+            await effect.ExecuteAsync(target, reverse, cancellationToken);
         }
 
-        private async UniTask ExecuteReverseEffectAsync(IUIElementHandle target, Effect effect, CancellationToken cancellationToken)
+        private async UniTask DelayAsync(float delay, CancellationToken cancellationToken)
         {
-            if (_effectPorts.TryGetValue(effect.Type, out var effectPort))
+            float elapsed = 0f;
+            while (elapsed < delay && !cancellationToken.IsCancellationRequested)
             {
-                await effectPort.ExecuteAsync(target, effect, true, cancellationToken);
+                await UniTask.Yield(cancellationToken: cancellationToken);
+                elapsed += _ignoreTimeScale ? Time.unscaledDeltaTime : Time.deltaTime;
             }
-        }
-
-
-        private Dictionary<EffectType, IEffectPort> InitializeEffectPorts()
-        {
-            return new Dictionary<EffectType, IEffectPort>
-            {
-                { EffectType.Fade, new FadeEffect(_ignoreTimeScale) },
-                { EffectType.Scale, new ScaleEffect(_ignoreTimeScale) },
-                { EffectType.Move, new MoveEffect(_ignoreTimeScale) },
-                { EffectType.Color, new ColorEffect(_ignoreTimeScale) },
-                { EffectType.MaterialFloat, new MaterialFloatEffect(_ignoreTimeScale) },
-                { EffectType.MaterialColor, new MaterialColorEffect(_ignoreTimeScale) },
-                { EffectType.Shake, new ShakeEffect(_ignoreTimeScale) }
-            };
         }
     }
 }

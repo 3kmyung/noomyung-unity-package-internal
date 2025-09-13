@@ -22,6 +22,12 @@ namespace Noomyung.UI.Application.Ports
         /// <summary>로컬 위치</summary>
         Vector3 LocalPosition { get; set; }
 
+        /// <summary>색상</summary>
+        Color Color { get; set; }
+
+        /// <summary>머티리얼 색상</summary>
+        Color MaterialColor { get; set; }
+
         /// <summary>UI 요소가 활성화되어 있는지 여부</summary>
         bool IsActive { get; set; }
 

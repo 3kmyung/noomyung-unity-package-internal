@@ -1,52 +1,70 @@
-using System.Threading;
+using System;
 using System.Numerics;
+using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Noomyung.UI.Application.Ports;
 using Noomyung.UI.Domain.Enums;
 
-namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
+namespace Noomyung.UI.Domain.ValueObjects.Effects
 {
     /// <summary>
-    /// 스케일 효과를 처리하는 포트입니다.
+    /// 스케일 효과를 나타내는 클래스입니다.
     /// </summary>
-    public class ScaleEffect : IEffectPort
+    public class ScaleEffect : IEffect
     {
+        public EffectType Type => EffectType.Scale;
+        public EffectTiming Timing { get; }
+        public EffectEasing Easing { get; }
+
+        /// <summary>시작 스케일</summary>
+        public Vector3 From { get; }
+
+        /// <summary>목표 스케일</summary>
+        public Vector3 To { get; }
+
+        /// <summary>축 마스크 ("XYZ", "XY", "X", "Y", "Z" 등)</summary>
+        public string AxisMask { get; }
+
         private readonly bool _ignoreTimeScale;
 
-        public ScaleEffect(bool ignoreTimeScale = true)
+        public ScaleEffect(
+            Vector3 from,
+            Vector3 to,
+            EffectTiming timing,
+            EffectEasing easing,
+            string axisMask = "XYZ",
+            bool ignoreTimeScale = true)
         {
+            From = from;
+            To = to;
+            Timing = timing ?? throw new ArgumentNullException(nameof(timing));
+            Easing = easing ?? throw new ArgumentNullException(nameof(easing));
+            AxisMask = axisMask;
             _ignoreTimeScale = ignoreTimeScale;
         }
 
-        public async UniTask ExecuteAsync(IUIElementHandle target, Effect effect, bool reverse, CancellationToken cancellationToken = default)
+        public async UniTask ExecuteAsync(IUIElementHandle target, bool reverse, CancellationToken cancellationToken = default)
         {
-            if (!effect.TryGetData<ScaleEffectData>(out var scaleData))
-            {
-                Debug.LogError($"ScaleEffect: Invalid effect data type. Expected ScaleEffectData, got {effect.Data?.GetType().Name}");
-                return;
-            }
-
-            var from = scaleData.From;
-            var to = scaleData.To;
-            var axisMask = (AxisMask)System.Enum.Parse(typeof(AxisMask), scaleData.AxisMask);
+            var from = From;
+            var to = To;
 
             if (reverse) (from, to) = (to, from);
 
-            var currentScale = target.LocalScale;
-
-            await AnimateAsync(effect.Timing.Duration, cancellationToken, progress =>
+            await AnimateAsync(Timing.Duration, cancellationToken, progress =>
             {
-                var easedProgress = ApplyEasing(progress, effect.Easing);
+                var easedProgress = ApplyEasing(progress, Easing);
                 var lerpedScale = LerpVector3(from, to, easedProgress);
+                var currentScale = target.LocalScale;
 
-                // 축 마스크 적용
-                var finalScale = currentScale;
-                if (axisMask.HasFlag(AxisMask.X)) finalScale = new Vector3(lerpedScale.X, finalScale.Y, finalScale.Z);
-                if (axisMask.HasFlag(AxisMask.Y)) finalScale = new Vector3(finalScale.X, lerpedScale.Y, finalScale.Z);
-                if (axisMask.HasFlag(AxisMask.Z)) finalScale = new Vector3(finalScale.X, finalScale.Y, lerpedScale.Z);
+                // 축 마스크에 따라 특정 축만 업데이트
+                var newScale = new Vector3(
+                    AxisMask.Contains("X") ? lerpedScale.X : currentScale.X,
+                    AxisMask.Contains("Y") ? lerpedScale.Y : currentScale.Y,
+                    AxisMask.Contains("Z") ? lerpedScale.Z : currentScale.Z
+                );
 
-                target.LocalScale = finalScale;
+                target.LocalScale = newScale;
             });
         }
 
@@ -89,5 +107,7 @@ namespace Noomyung.UI.Infrastructure.Runtime.EffectPorts
                 Mathf.Lerp(a.Y, b.Y, t),
                 Mathf.Lerp(a.Z, b.Z, t));
         }
+
+        public override string ToString() => $"ScaleEffect: {From} -> {To} with mask {AxisMask}";
     }
 }

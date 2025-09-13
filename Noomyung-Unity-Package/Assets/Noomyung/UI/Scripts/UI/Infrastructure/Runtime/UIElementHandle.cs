@@ -79,6 +79,42 @@ namespace Noomyung.UI.Infrastructure.Runtime
         }
 
         /// <inheritdoc />
+        public Color Color
+        {
+            get
+            {
+                var firstGraphic = _graphics?.FirstOrDefault();
+                return firstGraphic != null ? ConvertToSystemColor(firstGraphic.color) : Color.White;
+            }
+            set
+            {
+                if (_graphics != null && _graphics.Length > 0)
+                {
+                    var unityColor = ConvertToUnityColor(value);
+                    _graphics[0].color = unityColor;
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public Color MaterialColor
+        {
+            get
+            {
+                var firstMaterial = _materials?.FirstOrDefault();
+                return firstMaterial != null ? ConvertToSystemColor(firstMaterial.color) : Color.White;
+            }
+            set
+            {
+                if (_materials != null && _materials.Length > 0)
+                {
+                    var unityColor = ConvertToUnityColor(value);
+                    _materials[0].color = unityColor;
+                }
+            }
+        }
+
+        /// <inheritdoc />
         public bool IsActive
         {
             get => _rectTransform.gameObject.activeInHierarchy;

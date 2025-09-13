@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Noomyung.UI.Domain.Enums;
+using Noomyung.UI.Domain.ValueObjects;
+using Noomyung.UI.Domain.ValueObjects.Effects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -35,6 +37,20 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
                 { "From", fromValue },
                 { "To", toValue }
             };
+        }
+
+        /// <summary>
+        /// 새로운 Effect 구조에 맞는 Effect를 생성합니다.
+        /// </summary>
+        public MaterialFloatEffect CreateEffect()
+        {
+            return new MaterialFloatEffect(
+                propertyName: propertyName,
+                from: fromValue,
+                to: toValue,
+                timing: new EffectTiming(duration: 1f, delay: 0f, repeat: 1),
+                easing: new EffectEasing(EasingType.EaseInOut)
+            );
         }
 
         /// <inheritdoc />

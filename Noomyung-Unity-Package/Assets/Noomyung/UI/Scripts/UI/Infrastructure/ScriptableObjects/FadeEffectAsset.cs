@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Noomyung.UI.Domain.Enums;
+using Noomyung.UI.Domain.ValueObjects;
+using Noomyung.UI.Domain.ValueObjects.Effects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -30,6 +32,19 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
                 { "From", fromAlpha },
                 { "To", toAlpha }
             };
+        }
+
+        /// <summary>
+        /// 새로운 Effect 구조에 맞는 Effect를 생성합니다.
+        /// </summary>
+        public FadeEffect CreateEffect()
+        {
+            return new FadeEffect(
+                from: fromAlpha,
+                to: toAlpha,
+                timing: new EffectTiming(duration: 1f, delay: 0f, repeat: 1),
+                easing: new EffectEasing(EasingType.EaseInOut)
+            );
         }
     }
 }

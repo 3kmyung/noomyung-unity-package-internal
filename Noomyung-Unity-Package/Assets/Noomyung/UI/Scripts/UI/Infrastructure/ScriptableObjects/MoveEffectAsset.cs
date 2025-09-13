@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Numerics;
 using Noomyung.UI.Domain.Enums;
+using Noomyung.UI.Domain.ValueObjects;
+using Noomyung.UI.Domain.ValueObjects.Effects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -51,14 +53,16 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
         }
 
         /// <summary>
-        /// 새로운 Effect 구조에 맞는 데이터를 생성합니다.
+        /// 새로운 Effect 구조에 맞는 Effect를 생성합니다.
         /// </summary>
-        public MoveEffectData CreateEffectData()
+        public MoveEffect CreateEffect()
         {
-            return new MoveEffectData(
-                new Vector3(fromPosition.x, fromPosition.y, fromPosition.z),
-                new Vector3(toPosition.x, toPosition.y, toPosition.z),
-                space.ToString()
+            return new MoveEffect(
+                from: new Vector3(fromPosition.x, fromPosition.y, fromPosition.z),
+                to: new Vector3(toPosition.x, toPosition.y, toPosition.z),
+                timing: new EffectTiming(duration: 1f, delay: 0f, repeat: 1),
+                easing: new EffectEasing(EasingType.EaseInOut),
+                space: space.ToString()
             );
         }
     }

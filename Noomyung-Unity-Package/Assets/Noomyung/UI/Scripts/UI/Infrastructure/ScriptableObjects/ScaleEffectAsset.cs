@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Numerics;
 using Noomyung.UI.Domain.Enums;
+using Noomyung.UI.Domain.ValueObjects;
+using Noomyung.UI.Domain.ValueObjects.Effects;
 
 namespace Noomyung.UI.Infrastructure.ScriptableObjects
 {
@@ -39,14 +41,16 @@ namespace Noomyung.UI.Infrastructure.ScriptableObjects
         }
 
         /// <summary>
-        /// 새로운 Effect 구조에 맞는 데이터를 생성합니다.
+        /// 새로운 Effect 구조에 맞는 Effect를 생성합니다.
         /// </summary>
-        public ScaleEffectData CreateEffectData()
+        public ScaleEffect CreateEffect()
         {
-            return new ScaleEffectData(
-                new Vector3(fromScale.x, fromScale.y, fromScale.z),
-                new Vector3(toScale.x, toScale.y, toScale.z),
-                axisMask.ToString()
+            return new ScaleEffect(
+                from: new Vector3(fromScale.x, fromScale.y, fromScale.z),
+                to: new Vector3(toScale.x, toScale.y, toScale.z),
+                timing: new EffectTiming(duration: 1f, delay: 0f, repeat: 1),
+                easing: new EffectEasing(EasingType.EaseInOut),
+                axisMask: axisMask.ToString()
             );
         }
     }
