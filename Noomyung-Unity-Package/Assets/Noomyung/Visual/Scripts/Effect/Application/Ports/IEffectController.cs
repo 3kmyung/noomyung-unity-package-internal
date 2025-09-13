@@ -1,13 +1,13 @@
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using _3kmyung.Effect.Domain.ValueObjects;
 
-namespace _3kmyung.Effect.Application.Ports
+namespace _3kmyung.Effect.Application
 {
     /// <summary>
     /// Interface for executing individual UI effects.
     /// </summary>
-    public interface IEffectExecutor
+    public interface IEffectController
     {
         /// <summary>
         /// Executes the effect on the specified UI element asynchronously.
@@ -16,6 +16,6 @@ namespace _3kmyung.Effect.Application.Ports
         /// <param name="effect">Effect to execute</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Completion task</returns>
-        UniTask ExecuteAsync(IEffectElementPort target, IEffect effect, CancellationToken cancellationToken = default);
+        Task ExecuteAsync(IEffectElementPort target, IEffect effect, CancellationToken cancellationToken = default);
     }
 }

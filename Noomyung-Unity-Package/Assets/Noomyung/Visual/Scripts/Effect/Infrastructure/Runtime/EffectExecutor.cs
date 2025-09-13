@@ -11,7 +11,7 @@ namespace _3kmyung.Effect.Infrastructure.Runtime
     /// <summary>
     /// Executes UI effects with cycle-based repetition semantics.
     /// </summary>
-    public class EffectExecutor : IEffectExecutor
+    public class EffectExecutor : IEffectController
     {
         private readonly bool _ignoreTimeScale;
 
